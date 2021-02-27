@@ -1,0 +1,25 @@
+{
+	"configurations": [
+		{
+			"name": "Debug: Backend",
+			"type": "node",
+			"request": "launch",
+			"args": [
+				"${workspaceFolder}/packages/backend/src/index.ts"
+			],
+			"runtimeArgs": [
+				"--nolazy",
+				"-r",
+				"ts-node/register"
+			],
+			"env": {
+				"TS_NODE_PROJECT": "${workspaceFolder}/packages/backend/tsconfig.json",
+				"NODE_CONFIG_ENV": "test",
+				"DEBUG": "*"
+			},
+			"sourceMaps": true,
+			"cwd": "${workspaceRoot}/packages/backend",
+			"protocol": "inspector",
+		},
+	]
+}
