@@ -190,31 +190,36 @@ export default defineComponent({
   components: { FileUploader },
 
   methods: {
+    abort() {
+      this.openFileUpload = this.openTextUpload = false;
+      this.sharedText = "";
+      this.disableUploadBtn = true;
+      this.filesToUpload = [];
+      this.goback();
+    },
+
     abortWithConfirm() {
-      this.$q
-        .dialog({
-          title: "Bestätigung",
-          message:
-            "Möchtest du wirklich abbrechen? Deine bisherigen Eingaben gehen verloren!",
-          ok: "Ja",
-          cancel: "Nein",
-        })
-        .onOk(() => {
-          this.openFileUpload = this.openTextUpload = false;
-          this.sharedText = "";
-          this.disableUploadBtn = true;
-          this.filesToUpload = [];
-          this.goback();
-        });
+      if (
+        (!this.filesToUpload || this.filesToUpload.length === 0) &&
+        this.sharedText.length === 0
+      ) {
+        this.abort();
+      } else {
+        this.$q
+          .dialog({
+            title: "Bestätigung",
+            message:
+              "Möchtest du wirklich abbrechen? Deine bisherigen Eingaben gehen verloren!",
+            ok: "Ja",
+            cancel: "Nein",
+          })
+          .onOk(this.abort);
+      }
     },
 
     createToken(files?: File[]) {
       backend
-        .createToken(
-          this.getValidUntilTimestamp(),
-          this.sharedText,
-          files
-        )
+        .createToken(this.getValidUntilTimestamp(), this.sharedText, files)
         .then((tokenId: string) => {
           const uploadTime = Date.now() - this.uploadStartTime;
           const minShowThrobber = 1500;
