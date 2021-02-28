@@ -162,6 +162,7 @@
         @click="abortWithConfirm"
         class="q-mt-md float-left"
         icon="mdi-close"
+        color="primary"
         label="Abbrechen"
       />
 
@@ -170,6 +171,7 @@
         class="q-mt-md float-right"
         icon-right="mdi-cloud-upload"
         label="Teilen"
+        color="primary"
         :disable="disableUploadBtn"
         @click="uploadDialog = true"
       />
