@@ -35,7 +35,7 @@
           </transition>
         </q-card-section>
 
-        <q-card-actions align="right" class="text-primary">
+        <q-card-actions align="right">
           <q-btn flat label="Abbrechen" icon="mdi-close" v-close-popup />
           <q-btn
             flat
@@ -91,12 +91,12 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="confirmCopyToClipboard" position="bottom">
+    <q-dialog v-model="showPopupBottomNotification" position="bottom">
       <q-card style="width: 350px">
         <q-card-section class="row items-center no-wrap">
-          <q-icon name="mdi-check" />
+          <q-icon :name="popupBottomNotificationIcon" />
           <span class="text-weight-bold q-ml-sm">{{
-            confirmCopyToClipboardText
+            popupBottomNotificationText
           }}</span>
         </q-card-section>
       </q-card>
@@ -111,9 +111,15 @@
         @click="goback"
       />
       <div class="text-h6">Inhalt teilen</div>
-      <div class="text-body2">Was möchtest du teilen?</div>
+      <div class="text-body2" v-if="authorized || authorizationCheckActive">Was möchtest du teilen?</div>
+      <div class="text-body2" style="text-align: left" v-if="!authorized && !authorizationCheckActive">
+        Du musst dich authorisieren, um Inhalte teilen zu können:
+      </div>
 
-      <div :class="'row q-mt-md flex-center'">
+      <div
+        class="row q-mt-md flex-center"
+        v-if="authorized || authorizationCheckActive"
+      >
         <div class="column full-width">
           <q-input
             ref="sharedText"
@@ -157,12 +163,29 @@
         </div>
       </div>
 
+      <div
+        class="row q-mt-md flex-center"
+        v-if="!authorized && !authorizationCheckActive"
+      >
+        <div class="column full-width">
+          <q-input
+            v-model="password"
+            ref="password"
+            type="password"
+            outlined
+            label="Passwort"
+            bottom-slots
+            :error="authError"
+          >
+          </q-input>
+        </div>
+      </div>
+
       <q-btn
         flat
         @click="abortWithConfirm"
         class="q-mt-md float-left"
         icon="mdi-close"
-        color="primary"
         label="Abbrechen"
       />
 
@@ -171,10 +194,24 @@
         class="q-mt-md float-right"
         icon-right="mdi-cloud-upload"
         label="Teilen"
-        color="primary"
         :disable="disableUploadBtn"
         @click="uploadDialog = true"
+        v-if="authorized || authorizationCheckActive"
       />
+
+      <q-btn
+        flat
+        class="q-mt-md float-right"
+        icon-right="mdi-login"
+        label="Anmelden"
+        :disable="password.length === 0"
+        @click="authorize"
+        v-if="!authorized && !authorizationCheckActive"
+      />
+
+      <q-inner-loading :showing="authorizationCheckActive || authorizationActive">
+        <q-spinner-dots size="50px" color="primary" />
+      </q-inner-loading>
     </div>
   </div>
 </template>
@@ -188,7 +225,7 @@ import { defineComponent } from "@vue/composition-api";
 
 export default defineComponent({
   name: "ShareContent",
-  components: { },
+  components: {},
 
   methods: {
     abort() {
@@ -218,6 +255,31 @@ export default defineComponent({
       }
     },
 
+    authorize() {
+      this.authorizationActive = true;
+      backend
+        .auth(this.password)
+        .then(() => {
+          this.authorizationActive = false;
+          this.authorized = true;
+        })
+        .catch((err) => {
+          this.authorizationActive = false;
+          let msg = err instanceof Error ? err.message : err.toString();
+          if (msg.match(/401/)) {
+            msg = "Passwort falsch";
+          }
+
+          this.authError = true;
+          this.popupBottomNotificationText = msg;
+          this.popupBottomNotificationIcon = "mdi-close";
+          this.showPopupBottomNotification = true;
+          setTimeout(() => {
+            this.showPopupBottomNotification = false;
+          }, 2000);
+        });
+    },
+
     createToken(files?: File[]) {
       backend
         .createToken(this.getValidUntilTimestamp(), this.sharedText, files)
@@ -237,10 +299,11 @@ export default defineComponent({
 
     copyTokenToClipboard() {
       copyToClipboard(this.tokenId).then(() => {
-        this.confirmCopyToClipboardText = "Token kopiert!";
-        this.confirmCopyToClipboard = true;
+        this.popupBottomNotificationText = "Token kopiert!";
+        this.popupBottomNotificationIcon = "mdi-check";
+        this.showPopupBottomNotification = true;
         setTimeout(() => {
-          this.confirmCopyToClipboard = false;
+          this.showPopupBottomNotification = false;
         }, 2000);
       });
     },
@@ -292,10 +355,11 @@ export default defineComponent({
         });
       } else {
         copyToClipboard(url).then(() => {
-          this.confirmCopyToClipboardText = "Link kopiert!";
-          this.confirmCopyToClipboard = true;
+          this.popupBottomNotificationText = "Link kopiert!";
+          this.popupBottomNotificationIcon = "mdi-close";
+          this.showPopupBottomNotification = true;
           setTimeout(() => {
-            this.confirmCopyToClipboard = false;
+            this.showPopupBottomNotification = false;
           }, 2000);
         });
       }
@@ -347,7 +411,14 @@ export default defineComponent({
       { label: "Tage", value: "days" },
     ];
 
+    const authToken = localStorage.getItem("jwt");
     return {
+      authToken,
+      authorized: false,
+      authorizationCheckActive: true,
+      authorizationActive: false,
+      authError: false,
+      authHint: "",
       selected: false,
       openFileUpload: false,
       openTextUpload: false,
@@ -362,11 +433,13 @@ export default defineComponent({
       uploadStartTime: 0,
       uploadFinishedDialog: false,
       tokenId: "",
-      confirmCopyToClipboard: false,
-      confirmCopyToClipboardText: "",
+      showPopupBottomNotification: false,
+      popupBottomNotificationText: "",
+      popupBottomNotificationIcon: "",
       triggerFileUpload: false,
       filesToUpload: null,
       showFileInput: false,
+      password: "",
     };
   },
 
@@ -392,6 +465,16 @@ export default defineComponent({
       this.disableUploadBtn =
         this.sharedText.length === 0 && !this.showFileInput;
     },
+  },
+
+  mounted() {
+    if (this.authToken) {
+      this.authorizationCheckActive = true;
+      backend
+        .isAuthorized()
+        .then((result) => (this.authorized = result))
+        .finally(() => (this.authorizationCheckActive = false));
+    }
   },
 });
 </script>

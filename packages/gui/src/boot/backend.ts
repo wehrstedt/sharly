@@ -1,9 +1,14 @@
-import Vue from "vue";
 import axios from "axios";
 
-Vue.prototype.$axios = axios;
-// ^ ^ ^ this will allow you to use this.$axios
-//       so you won't necessarily have to import axios in each vue file
+const jwt = localStorage.getItem("jwt");
+axios.defaults.headers.common["Authorization"] = jwt;
+axios.interceptors.response.use(response => response, error => {
+	if (error.response.status === 401) {
+		throw new Error("Not authorized");
+	}
+
+	throw error;
+});
 
 export interface Token {
 	validUntil: number;
@@ -13,6 +18,19 @@ export interface Token {
 
 const _api = axios.create({ baseURL: "/backend" });
 const api = {
+
+	auth: (password: string): Promise<string> => {
+		return new Promise((resolve, reject) => {
+			_api.post(`auth`, {
+				password
+			})
+				.then((result) => {
+					localStorage.setItem("jwt", result.data.token);
+					resolve(result.data.token);
+				})
+				.catch(reject);
+		});
+	},
 
 	downloadFile: (fileName: string): Promise<void> => {
 		return new Promise((resolve, reject) => {
@@ -28,6 +46,16 @@ const api = {
 		return new Promise((resolve, reject) => {
 			_api.get(`token/${tokenId}`)
 				.then((result) => resolve((result as any).data as Token))
+				.catch(reject);
+		});
+	},
+
+	isAuthorized(): Promise<boolean> {
+		return new Promise((resolve, reject) => {
+			_api.post(`auth`, {
+				token: localStorage.getItem("jwt")
+			})
+				.then((result) => resolve(result.data.auth))
 				.catch(reject);
 		});
 	},
@@ -53,9 +81,5 @@ const api = {
 	}
 
 };
-
-Vue.prototype.$backend = api;
-// ^ ^ ^ this will allow you to use this.$api
-//       so you can easily perform requests against your app's API
 
 export { axios, api };

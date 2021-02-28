@@ -1,3 +1,4 @@
+import { sign, verify } from "jsonwebtoken";
 import express from "express";
 import bodyParser from "body-parser";
 import { DatabaseClient, Token, File } from "./DatabaseClient";
@@ -6,6 +7,7 @@ import { basename, extname, join } from "path";
 import { existsSync } from "fs";
 import { mkdir, mv } from "shelljs";
 import { v4 } from "uuid";
+import { API_SECRET } from "./config";
 
 const FileUploadDir = "files";
 const FileTmpDir = "files-tmp";
@@ -106,8 +108,57 @@ app.get('/download-file/:file', function (req, res) {
 	}
 });
 
+app.post("/auth", function (request, response) {
+	try {
+		if (request.body) {
+			if (request.body.password) {
+				if (request.body.password === apiPassword) {
+					const webToken = v4();
+					webTokens.add(webToken);
+					response.status(200).send({
+						auth: true,
+						token: sign({ webToken }, API_SECRET, {
+							expiresIn: "1h"
+						}),
+					});
+				} else {
+					response.status(401).send();
+				}
+			} else if (request.body.token) {
+				try {
+					const verified = verify(request.body.token, API_SECRET) as any;
+					response.status(200).send({
+						auth: webTokens.has(verified.webToken)
+					});
+				} catch (err) {
+					response.status(200).send({
+						auth: false
+					});
+				}
+			} else {
+				response.status(400).send({
+					error: "Missing password or token",
+				});
+			}
+		} else {
+			response.status(400).send({
+				error: "Missing password or token",
+			});
+		}
+	} catch (err) {
+		const errObj = (err instanceof Error) ? err : new Error(err);
+		console.error(`${errObj.message}\n\nStack:\n${errObj.stack}\n`);
+		response.status(500).send({
+			error: errObj.message,
+			stack: errObj.stack,
+		});
+	}
+});
+
 // start the express server
 const port = 8082;
+const apiPassword = "test123";
+const webTokens = new Set();
 app.listen(port, async () => {
 	// tslint:disable-next-line:no-console
 	await databaseClient.connect();

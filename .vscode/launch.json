@@ -15,7 +15,8 @@
 			"env": {
 				"TS_NODE_PROJECT": "${workspaceFolder}/packages/backend/tsconfig.json",
 				"NODE_CONFIG_ENV": "test",
-				"DEBUG": "*"
+				"DEBUG": "*",
+				"API_SECRET": "sharly"
 			},
 			"sourceMaps": true,
 			"cwd": "${workspaceRoot}/packages/backend",
