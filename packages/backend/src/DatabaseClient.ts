@@ -1,10 +1,8 @@
 import { Collection, Db, FilterQuery, MongoClient, Timestamp } from "mongodb";
+import { DB_HOST, DB_PASSWD, DB_PORT, DB_USER } from "./config";
 
 export class DatabaseClient {
 
-	private static DB_URL = "mongodb://localhost:27017";
-	private static DB_USER = "root";
-	private static DB_PASSWD = "toor";
 	private static DB_NAME = "sharly";
 	private static COLLECTON_NAME = "tokens";
 
@@ -13,10 +11,10 @@ export class DatabaseClient {
 	private collection: Collection<Token>;
 
 	constructor() {
-		this.client = new MongoClient(DatabaseClient.DB_URL, {
+		this.client = new MongoClient(`mongodb://${DB_HOST}:${DB_PORT}`, {
 			auth: {
-				user: DatabaseClient.DB_USER,
-				password: DatabaseClient.DB_PASSWD,
+				user: DB_USER,
+				password: DB_PASSWD,
 			}
 		});
 	}

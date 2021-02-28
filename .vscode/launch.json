@@ -16,7 +16,10 @@
 				"TS_NODE_PROJECT": "${workspaceFolder}/packages/backend/tsconfig.json",
 				"NODE_CONFIG_ENV": "test",
 				"DEBUG": "*",
-				"API_SECRET": "sharly"
+				"API_SECRET": "sharly",
+				"DB_HOST": "localhost",
+				"DB_USER": "root",
+				"DB_PASSWD": "toor"
 			},
 			"sourceMaps": true,
 			"cwd": "${workspaceRoot}/packages/backend",
