@@ -178,7 +178,6 @@
 </template>
 
 <script lang="ts">
-import FileUploader from "./FileUploader.vue";
 import { api as backend } from "../boot/backend";
 import { copyToClipboard } from "quasar";
 import * as moment from "moment";
@@ -187,7 +186,7 @@ import { defineComponent } from "@vue/composition-api";
 
 export default defineComponent({
   name: "ShareContent",
-  components: { FileUploader },
+  components: { },
 
   methods: {
     abort() {
