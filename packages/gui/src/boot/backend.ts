@@ -5,20 +5,10 @@ Vue.prototype.$axios = axios;
 // ^ ^ ^ this will allow you to use this.$axios
 //       so you won't necessarily have to import axios in each vue file
 
-interface Token {
+export interface Token {
 	validUntil: number;
-}
-
-export interface FileToken extends Token {
 	files: File[];
-}
-
-export interface TextToken extends Token {
 	text: string;
-}
-export interface File {
-	name: string;
-	path: string;
 }
 
 const _api = axios.create({ baseURL: "/backend" });
@@ -34,28 +24,18 @@ const api = {
 		});
 	},
 
-	getToken: (tokenId: string): Promise<TextToken | FileToken> => {
+	getToken: (tokenId: string): Promise<Token> => {
 		return new Promise((resolve, reject) => {
 			_api.get(`token/${tokenId}`)
-				.then((result) => resolve((result as any).data as FileToken))
+				.then((result) => resolve((result as any).data as Token))
 				.catch(reject);
 		});
 	},
 
-	createTextToken: (text: string, validUntil: number | Date): Promise<string> => {
+	createToken: (validUntil: number | Date, text: string = "", files: File[] = []): Promise<string> => {
 		return new Promise((resolve, reject) => {
 			_api.post("token", {
 				text,
-				validUntil: validUntil instanceof Date ? validUntil.getTime() : validUntil
-			}).then(
-				(result) => resolve((result as any).data.token as string)
-			).catch(reject);
-		});
-	},
-
-	createFileToken: (files: File[], validUntil: number | Date): Promise<string> => {
-		return new Promise((resolve, reject) => {
-			_api.post("token", {
 				files,
 				validUntil: validUntil instanceof Date ? validUntil.getTime() : validUntil
 			}).then(

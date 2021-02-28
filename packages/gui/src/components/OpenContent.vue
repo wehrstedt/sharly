@@ -14,8 +14,10 @@
     <q-dialog v-model="confirmCopyToClipboard" position="bottom">
       <q-card style="width: 350px">
         <q-card-section class="row items-center no-wrap">
-            <q-icon name="mdi-check" />
-            <span class="text-weight-bold q-ml-sm">{{ confirmCopyToClipboardText }}</span>
+          <q-icon name="mdi-check" />
+          <span class="text-weight-bold q-ml-sm">{{
+            confirmCopyToClipboardText
+          }}</span>
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -31,15 +33,11 @@
       <div class="text-h6">Inhalt öffnen</div>
     </div>
 
-    <q-form
-      class="row q-pt-xs full-width"
-      ref="tokenForm"
-      v-if="!fileToken && !textToken"
-    >
+    <q-form class="row q-pt-xs full-width" ref="tokenForm" v-if="!token">
       <q-input
         flat
         label="Token"
-        ref="token"
+        ref="tokenId"
         class="full-width"
         :rules="[(val) => !!val || 'Bitte gib einen Token ein.']"
         v-model="tokenId"
@@ -54,20 +52,10 @@
       />
     </q-form>
 
-    <q-form class="row q-pt-xs full-width" v-if="fileToken">
-      <q-tree
-        :nodes="fileTokenNodes"
-        node-key="path"
-        default-expand-all
-        selected-color="primary"
-        :selected.sync="selectedFileToDownload"
-      />
-    </q-form>
-
-    <q-form class="row q-pt-md full-width q-pt-md q-pb-md" v-if="textToken">
+    <q-form class="row q-pt-md full-width q-pt-md q-pb-md" v-if="token">
       <div class="column col-10">
         <span class="text-subtitle2" style="display: inline-block"
-          >Geteilter Inhalt:</span
+          >Geteilter Text:</span
         >
       </div>
 
@@ -82,7 +70,28 @@
       </div>
 
       <div class="row full-width">
-        {{ textToken.text }}
+        {{ token.text }}
+      </div>
+    </q-form>
+
+    <q-form
+      class="row q-pt-xs full-width"
+      v-if="token && token.files.length > 0"
+    >
+      <div class="column col-10">
+        <span class="text-subtitle2" style="display: inline-block"
+          >Dateien:</span
+        >
+      </div>
+
+      <div class="row full-width">
+        <q-item v-for="file in token.files" :key="file.path" clickable class="q-pl-none" @click="downloadFile(file.path)">
+          <q-item-section avatar>
+            <q-icon name="mdi-file" />
+          </q-item-section>
+
+          <q-item-section>{{ file.name }}</q-item-section>
+        </q-item>
       </div>
     </q-form>
 
@@ -92,25 +101,25 @@
       label="Schließen"
       class="full-width q-mt-xs"
       @click="
-        textToken = fileToken = null;
+        token = null;
         tokenId = '';
         goback();
       "
-      v-if="textToken || fileToken"
+      v-if="token"
     />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "@vue/composition-api";
-import { api as backend, FileToken, TextToken } from "../boot/backend";
+import { api as backend, Token } from "../boot/backend";
 import { copyToClipboard } from "quasar";
 
 export default defineComponent({
   name: "OpenContent",
   methods: {
     copySharedTextToClipboard() {
-      copyToClipboard(this.textToken.text).then(() => {
+      copyToClipboard(this.token.text).then(() => {
         this.confirmCopyToClipboardText = "Text kopiert!";
         this.confirmCopyToClipboard = true;
         setTimeout(() => {
@@ -119,16 +128,16 @@ export default defineComponent({
       });
     },
 
-    downloadSelectedFile() {
-      if (this.selectedFileToDownload) {
-        backend.downloadFile(this.selectedFileToDownload).then((result) => {
+    downloadFile(filePath: string) {
+      if (filePath) {
+        backend.downloadFile(filePath).then((result) => {
           const url = window.URL.createObjectURL(new Blob([result as any]));
           const link = document.createElement("a");
           link.href = url;
 
-          const fileName = this.fileTokenNodes[0].children.filter(
-            (f) => f.path === this.selectedFileToDownload
-          )[0].label;
+          const fileName = this.token.files.filter(
+            (f) => f.path === filePath
+          )[0].name;
           link.setAttribute("download", fileName); //or any other extension
           document.body.appendChild(link);
           link.click();
@@ -145,17 +154,10 @@ export default defineComponent({
         if (validationResult) {
           backend
             .getToken(this.tokenId)
-            .then((token) => {
-              if (typeof (token as any).files !== "undefined") {
-                this.fileToken = token;
-              } else {
-                this.textToken = token;
-              }
-            })
+            .then((token) => (this.token = token))
             .catch((err) => {
               const errMsg =
                 err instanceof Error ? err.message : err.toString();
-              console.log(err);
               if (errMsg.match(/404/)) {
                 this.errorMsg =
                   "Es wurde kein Inhalt für dieses Token gefunden.";
@@ -178,55 +180,23 @@ export default defineComponent({
   setup() {
     return {
       tokenId: "",
-      fileToken: null as FileToken,
-      textToken: null as TextToken,
+      token: null as Token,
       errorDlg: false,
       disableOpenTokenBtn: true,
-      fileTokenNodes: [],
-      selectedFileToDownload: null,
       confirmCopyToClipboard: false,
-      confirmCopyToClipboardText: ""
+      confirmCopyToClipboardText: "",
     };
   },
 
   watch: {
     tokenId() {
       this.disableOpenTokenBtn = this.tokenId.length === 0;
-    },
-
-    fileToken() {
-      if (this.fileToken) {
-        this.fileTokenNodes = [
-          {
-            label: "Dateien",
-            icon: "mdi-file",
-            path: "",
-            children: this.fileToken.files.map((file) => {
-              console.log(file);
-              return {
-                label: file.name,
-                icon: "mdi-file",
-                path: file.path,
-                children: [],
-              };
-            }),
-          },
-        ];
-      } else {
-        this.fileTokenNodes = [];
-      }
-    },
-
-    selectedFileToDownload() {
-      if (this.selectedFileToDownload) {
-        this.downloadSelectedFile();
-      }
-    },
+    }
   },
 
   mounted() {
-    if (this.$refs.token) {
-      this.$refs.token.focus();
+    if (this.$refs.tokenId) {
+      this.$refs.tokenId.focus();
     }
   },
 });

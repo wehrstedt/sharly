@@ -10,7 +10,7 @@ export class DatabaseClient {
 
 	private client: MongoClient;
 	private database: Db;
-	private collection: Collection<FileToken | TextToken>;
+	private collection: Collection<Token>;
 
 	constructor() {
 		this.client = new MongoClient(DatabaseClient.DB_URL, {
@@ -27,7 +27,7 @@ export class DatabaseClient {
 		this.collection = await this.database.collection(DatabaseClient.COLLECTON_NAME);
 	}
 
-	public async getToken(token: string): Promise<FileToken | TextToken> {
+	public async getToken(token: string): Promise<Token> {
 		const result = await this.collection.findOne({
 			token
 		});
@@ -39,24 +39,22 @@ export class DatabaseClient {
 		return result;
 	}
 
-	public async insertTextToken(text: string, validUntil: Date | number): Promise<TextToken> {
-		const token = new TextToken(text, validUntil);
-		await this.collection.insertOne(token);
-		return token;
-	}
-
-	public async insertFileToken(files: File[], validUntil: Date | number): Promise<FileToken> {
-		const token = new FileToken(files, validUntil);
+	public async insertToken(validUntil: Date | number, text: string, files: File[]): Promise<Token> {
+		const token = new Token(validUntil, text, files);
 		await this.collection.insertOne(token);
 		return token;
 	}
 }
 
-export abstract class Token {
+export class Token {
 	token: string;
 	validUntil: number;
 
-	constructor(validUntil: Date | number) {
+	constructor(validUntil: Date | number, public text: string, public files: File[] = []) {
+		if (!text && files.length === 0) {
+			throw new Error(`Please pass a text or at least one file to create a token.`);
+		}
+
 		this.validUntil = validUntil instanceof Date ? validUntil.getTime() : validUntil;
 		this.token = "";
 		for (let i = 0; i < 5; i++) {
@@ -68,24 +66,6 @@ export abstract class Token {
 		min = Math.ceil(min);
 		max = Math.floor(max);
 		return Math.floor(Math.random() * (max - min)) + min;
-	  }
-}
-
-export class FileToken extends Token {
-	token: string;
-	validUntil: number;
-
-	constructor(public files: File[], validUntil: Date | number) {
-		super(validUntil);
-	}
-}
-
-export class TextToken extends Token {
-	token: string;
-	validUntil: number;
-
-	constructor(public text: string, validUntil: Date | number) {
-		super(validUntil);
 	}
 }
 

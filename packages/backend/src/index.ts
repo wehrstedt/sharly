@@ -1,9 +1,9 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { DatabaseClient, FileToken, TextToken, Token, File } from "./DatabaseClient";
+import { DatabaseClient, Token, File } from "./DatabaseClient";
 import fileUpload = require("express-fileupload");
 import { basename, extname, join } from "path";
-import { existsSync, mkdirSync } from "fs";
+import { existsSync } from "fs";
 import { mkdir, mv } from "shelljs";
 import { v4 } from "uuid";
 
@@ -26,8 +26,8 @@ app.get("/token/:token_id", async (req, res) => {
 		const token = await databaseClient.getToken(req.params.token_id);
 		res.status(201).send({
 			validUntil: token.validUntil,
-			text: (token as TextToken).text,
-			files: (token as FileToken).files,
+			text: token.text,
+			files: token.files,
 		})
 	} catch (err) {
 		res.status(404).send();
@@ -36,37 +36,24 @@ app.get("/token/:token_id", async (req, res) => {
 
 app.post("/token/", async (req, res) => {
 	try {
-		const token: Partial<FileToken | TextToken> = req.body;
-		if (!token.validUntil) {
+		const requestData: Partial<Token> = req.body;
+		if (!requestData.validUntil) {
 			throw new Error("Missing required parameter token.validUntil");
 		}
 
-		let createdToken: FileToken | TextToken;
-		if (typeof (token as any).text === "undefined") {
-			const fileToken = token as FileToken;
-			if (!fileToken.files || fileToken.files.length === 0) {
-				throw new Error("Missing required property token.files or property is empty");
-			}
-
-			const files = fileToken.files.map(file => {
+		let files: File[] = [];
+		if (requestData.files) {
+			files = requestData.files.map(file => {
 				const newFilePath = join(FileUploadDir, basename(file.path));
 				mv(join(FileTmpDir, file.path), newFilePath);
 				file.path = basename(newFilePath);
 				return file;
 			});
-
-			createdToken = await databaseClient.insertFileToken(files, token.validUntil);
-		} else {
-			const textToken = token as TextToken;
-			if (!textToken.text || textToken.text.length === 0) {
-				throw new Error("Missing required property token.text or property is empty");
-			}
-
-			createdToken = await databaseClient.insertTextToken(textToken.text, token.validUntil);
 		}
 
+		const token = await databaseClient.insertToken(requestData.validUntil, requestData.text || "", files);
 		res.status(201).send({
-			token: createdToken.token
+			token: token.token
 		});
 	} catch (err) {
 		const error = (err instanceof Error) ? err.message : err.toString();
