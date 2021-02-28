@@ -22,12 +22,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
 
 app.get("/token/:token_id", async (req, res) => {
-	const token = await databaseClient.getToken(req.params.token_id);
-	res.status(201).send({
-		validUntil: token.validUntil,
-		text: (token as TextToken).text,
-		files: (token as FileToken).files,
-	})
+	try {
+		const token = await databaseClient.getToken(req.params.token_id);
+		res.status(201).send({
+			validUntil: token.validUntil,
+			text: (token as TextToken).text,
+			files: (token as FileToken).files,
+		})
+	} catch (err) {
+		res.status(404).send();
+	}
 });
 
 app.post("/token/", async (req, res) => {
@@ -46,8 +50,8 @@ app.post("/token/", async (req, res) => {
 
 			const files = fileToken.files.map(file => {
 				const newFilePath = join(FileUploadDir, basename(file.path));
-				mv(file.path, newFilePath);
-				file.path = newFilePath;
+				mv(join(FileTmpDir, file.path), newFilePath);
+				file.path = basename(newFilePath);
 				return file;
 			});
 
@@ -86,7 +90,7 @@ app.post("/upload/", async (req, res) => {
 				await file.mv(uploadPath);
 				uploadedFiles.push({
 					name: file.name,
-					path: tmpFileName
+					path: basename(tmpFileName)
 				});
 			}
 		} catch (err) {
@@ -96,6 +100,22 @@ app.post("/upload/", async (req, res) => {
 		res.status(201).send({
 			uploadedFiles
 		});
+	}
+});
+
+app.get('/download-file/:file', function (req, res) {
+	const fileName = req.params.file;
+	const filePath = join(FileUploadDir, fileName);
+	if (existsSync(filePath)) {
+		res.download(filePath, (err) => {
+			if (err) {
+				res.status(500).send({
+					message: "Could not download the file. " + err,
+				});
+			}
+		});
+	} else {
+		res.status(404).send();
 	}
 });
 

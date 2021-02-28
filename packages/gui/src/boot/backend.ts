@@ -9,16 +9,30 @@ interface Token {
 	validUntil: number;
 }
 
-interface FileToken extends Token {
-	files: string[];
+export interface FileToken extends Token {
+	files: File[];
 }
 
-interface TextToken extends Token {
+export interface TextToken extends Token {
 	text: string;
+}
+export interface File {
+	name: string;
+	path: string;
 }
 
 const _api = axios.create({ baseURL: "/backend" });
 const api = {
+
+	downloadFile: (fileName: string): Promise<void> => {
+		return new Promise((resolve, reject) => {
+			_api.get(`download-file/${fileName}`, {
+				responseType: "blob"
+			})
+				.then((result) => resolve((result as any).data as any))
+				.catch(reject);
+		});
+	},
 
 	getToken: (tokenId: string): Promise<TextToken | FileToken> => {
 		return new Promise((resolve, reject) => {
@@ -39,7 +53,7 @@ const api = {
 		});
 	},
 
-	createFileToken: (files: any[], validUntil: number | Date): Promise<string> => {
+	createFileToken: (files: File[], validUntil: number | Date): Promise<string> => {
 		return new Promise((resolve, reject) => {
 			_api.post("token", {
 				files,
@@ -50,10 +64,10 @@ const api = {
 		});
 	},
 
-	uploadFiles(formData: any) {
+	uploadFiles(formData: any): Promise<File[]> {
 		return new Promise((resolve, reject) => {
 			_api.post("upload", formData).then(
-				(result) => resolve((result as any).data.uploadedFiles as string)
+				(result) => resolve((result as any).data.uploadedFiles as File[])
 			).catch(reject);
 		});
 	}

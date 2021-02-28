@@ -230,7 +230,7 @@ export default defineComponent({
         backend.createTextToken(this.sharedText, this.getValidUntilTimestamp())
           .then((tokenId: string) => {
             const uploadTime = Date.now() - this.uploadStartTime;
-            const minShowThrobber = 1500;
+            const minShowThrobber = 1000;
             if (uploadTime < minShowThrobber) {
               setTimeout(() => {
                 this.uploadFinished(tokenId);
