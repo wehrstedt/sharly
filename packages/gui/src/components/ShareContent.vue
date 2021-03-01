@@ -176,6 +176,7 @@
             label="Passwort"
             bottom-slots
             :error="authError"
+            @keyup="passwordFieldKeyUp"
           >
           </q-input>
         </div>
@@ -336,6 +337,12 @@ export default defineComponent({
       setTimeout(() => {
         this.$refs.sharedText.$el.focus();
       }, 20);
+    },
+
+    passwordFieldKeyUp(e) {
+      if (e.keyCode === 13){
+        this.authorize();
+      }
     },
 
     sharedFinished() {
