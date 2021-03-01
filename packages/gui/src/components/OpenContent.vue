@@ -41,6 +41,7 @@
         class="full-width"
         :rules="[(val) => !!val || 'Bitte gib einen Token ein.']"
         v-model="tokenId"
+        @keyup="tokenIdKeyUp"
       />
       <q-btn
         icon-right="mdi-lock-open"
@@ -62,6 +63,7 @@
       <div class="column col-2">
         <q-btn
           flat
+          round
           icon="mdi-clipboard-multiple-outline"
           class="float-right"
           size="sm"
@@ -85,7 +87,13 @@
       </div>
 
       <div class="row full-width">
-        <q-item v-for="file in token.files" :key="file.path" clickable class="q-pl-none" @click="downloadFile(file.path)">
+        <q-item
+          v-for="file in token.files"
+          :key="file.path"
+          clickable
+          class="q-pl-none"
+          @click="downloadFile(file.path)"
+        >
           <q-item-section avatar>
             <q-icon name="mdi-file" />
           </q-item-section>
@@ -149,6 +157,12 @@ export default defineComponent({
       this.$emit("go-back");
     },
 
+    tokenIdKeyUp(e) {
+      if (e.keyCode === 13) {
+        this.openToken();
+      }
+    },
+
     openToken() {
       this.$refs.tokenForm.validate().then((validationResult: boolean) => {
         if (validationResult) {
@@ -191,7 +205,7 @@ export default defineComponent({
   watch: {
     tokenId() {
       this.disableOpenTokenBtn = this.tokenId.length === 0;
-    }
+    },
   },
 
   mounted() {
