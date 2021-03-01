@@ -8,7 +8,7 @@
 
 <style>
 .body--light {
-  background-color: #3F51B5
+  background-color: #303443
 }
 </style>
 
