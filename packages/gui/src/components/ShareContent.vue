@@ -111,8 +111,14 @@
         @click="goback"
       />
       <div class="text-h6">Inhalt teilen</div>
-      <div class="text-body2" v-if="authorized || authorizationCheckActive">Was möchtest du teilen?</div>
-      <div class="text-body2" style="text-align: left" v-if="!authorized && !authorizationCheckActive">
+      <div class="text-body2" v-if="authorized || authorizationCheckActive">
+        Was möchtest du teilen?
+      </div>
+      <div
+        class="text-body2"
+        style="text-align: left"
+        v-if="!authorized && !authorizationCheckActive"
+      >
         Du musst dich authorisieren, um Inhalte teilen zu können:
       </div>
 
@@ -144,7 +150,7 @@
           <q-form
             @submit="uploadFiles"
             ref="fileUploadForm"
-            action="/backend/upload"
+            action="/sharly-backend/upload"
             method="POST"
           >
             <q-file
@@ -210,7 +216,9 @@
         v-if="!authorized && !authorizationCheckActive"
       />
 
-      <q-inner-loading :showing="authorizationCheckActive || authorizationActive">
+      <q-inner-loading
+        :showing="authorizationCheckActive || authorizationActive"
+      >
         <q-spinner-dots size="50px" color="primary" />
       </q-inner-loading>
     </div>
@@ -218,7 +226,7 @@
 </template>
 
 <script lang="ts">
-import { api as backend } from "../boot/backend";
+import { api as backend, File } from "../boot/backend";
 import { copyToClipboard } from "quasar";
 import * as moment from "moment";
 
@@ -229,7 +237,7 @@ export default defineComponent({
   components: {},
 
   methods: {
-    abort() {
+    abort () {
       this.openFileUpload = this.openTextUpload = false;
       this.sharedText = "";
       this.disableUploadBtn = true;
@@ -237,7 +245,7 @@ export default defineComponent({
       this.goback();
     },
 
-    abortWithConfirm() {
+    abortWithConfirm () {
       if (
         (!this.filesToUpload || this.filesToUpload.length === 0) &&
         this.sharedText.length === 0
@@ -250,13 +258,13 @@ export default defineComponent({
             message:
               "Möchtest du wirklich abbrechen? Deine bisherigen Eingaben gehen verloren!",
             ok: "Ja",
-            cancel: "Nein",
+            cancel: "Nein"
           })
-          .onOk(this.abort);
+          .onOk(this.abort.bind(this));
       }
     },
 
-    authorize() {
+    authorize () {
       this.authorizationActive = true;
       backend
         .auth(this.password)
@@ -266,7 +274,7 @@ export default defineComponent({
         })
         .catch((err) => {
           this.authorizationActive = false;
-          let msg = err instanceof Error ? err.message : err.toString();
+          let msg: string = err instanceof Error ? err.message : err.toString();
           if (msg.match(/401/)) {
             msg = "Passwort falsch";
           }
@@ -281,7 +289,7 @@ export default defineComponent({
         });
     },
 
-    createToken(files?: File[]) {
+    createToken (files?: File[]): void {
       backend
         .createToken(this.getValidUntilTimestamp(), this.sharedText, files)
         .then((tokenId: string) => {
@@ -298,7 +306,7 @@ export default defineComponent({
         .catch((err: string) => alert(`Fehler: ${err}`));
     },
 
-    copyTokenToClipboard() {
+    copyTokenToClipboard () {
       copyToClipboard(this.tokenId).then(() => {
         this.popupBottomNotificationText = "Token kopiert!";
         this.popupBottomNotificationIcon = "mdi-check";
@@ -309,18 +317,19 @@ export default defineComponent({
       });
     },
 
-    getValidUntilTimestamp() {
+    getValidUntilTimestamp (): number {
+      // @ts-ignore
       const validUntil = moment()
         .add(this.selectedTime.value, this.selectedTimeUnit.value)
         .toDate();
       return validUntil.getTime();
     },
 
-    goback() {
+    goback () {
       this.$emit("go-back");
     },
 
-    filesSelected(files) {
+    filesSelected (files: File[] | null) {
       if (files) {
         this.showFileInput = true;
       } else {
@@ -328,37 +337,38 @@ export default defineComponent({
       }
     },
 
-    openFile() {
+    openFile () {
       this.openFileUpload = true;
     },
 
-    openText() {
+    openText () {
       this.openTextUpload = true;
       setTimeout(() => {
+        // @ts-ignore
         this.$refs.sharedText.$el.focus();
       }, 20);
     },
 
-    passwordFieldKeyUp(e) {
-      if (e.keyCode === 13){
+    passwordFieldKeyUp (e: KeyboardEvent) {
+      if (e.keyCode === 13) {
         this.authorize();
       }
     },
 
-    sharedFinished() {
+    sharedFinished () {
       this.openFileUpload = this.openTextUpload = false;
       this.disableUploadBtn = true;
       this.sharedText = "";
       this.$emit("go-back");
     },
 
-    shareViaWebShare() {
+    shareViaWebShare () {
       const url = `${window.location.protocol}//${window.location.host}/token/${this.tokenId}`;
       if (navigator.share) {
         navigator.share({
           title: "Jemand möchte was mit dir Teilen",
           text: `Hallo. Jemand möchte mit dir etwas via Sharly teilen. Öffne diesen Link, um den Inhalt zu sehen: ${url}`,
-          url,
+          url
         });
       } else {
         copyToClipboard(url).then(() => {
@@ -372,7 +382,7 @@ export default defineComponent({
       }
     },
 
-    upload() {
+    upload () {
       this.loading = true;
       this.uploadStartTime = Date.now();
 
@@ -380,11 +390,13 @@ export default defineComponent({
         this.createToken();
       } else {
         const fileUploadForm = this.$refs.fileUploadForm;
+        // @ts-ignore
         fileUploadForm.submit();
       }
     },
 
-    uploadFiles() {
+    uploadFiles () {
+      // @ts-ignore
       const formData = new FormData(this.$refs.fileUploadForm.$el);
       backend
         .uploadFiles(formData)
@@ -394,28 +406,28 @@ export default defineComponent({
         });
     },
 
-    uploadFinished(tokenId: string) {
+    uploadFinished (tokenId: string) {
       this.tokenId = tokenId;
       this.loading = false;
       this.uploadStartTime = 0;
       this.uploadDialog = false;
       this.uploadFinishedDialog = true;
-    },
+    }
   },
 
-  setup() {
+  setup () {
     const minutes = [];
     for (var i = 1; i <= 60; i++) {
       minutes.push({
         label: i.toString(),
-        value: i,
+        value: i
       });
     }
 
     const timeUnits = [
       { label: "Minuten", value: "minutes" },
       { label: "Stunden", value: "hours" },
-      { label: "Tage", value: "days" },
+      { label: "Tage", value: "days" }
     ];
 
     const authToken = localStorage.getItem("jwt");
@@ -446,35 +458,35 @@ export default defineComponent({
       triggerFileUpload: false,
       filesToUpload: null,
       showFileInput: false,
-      password: "",
+      password: ""
     };
   },
 
   watch: {
-    openFileUpload() {
+    openFileUpload () {
       this.selected = this.openFileUpload;
     },
 
-    openTextUpload() {
+    openTextUpload () {
       this.selected = this.openTextUpload;
     },
 
-    sharedText() {
+    sharedText () {
       this.disableUploadBtn =
         this.sharedText.length === 0 && !this.showFileInput;
     },
 
-    filesToUpload() {
-      this.showFileInput = this.filesToUpload.length > 0;
+    filesToUpload () {
+      this.showFileInput = this.filesToUpload && this.filesToUpload.length > 0;
     },
 
-    showFileInput() {
+    showFileInput () {
       this.disableUploadBtn =
         this.sharedText.length === 0 && !this.showFileInput;
-    },
+    }
   },
 
-  mounted() {
+  mounted () {
     if (this.authToken) {
       this.authorizationCheckActive = true;
       backend
@@ -482,6 +494,6 @@ export default defineComponent({
         .then((result) => (this.authorized = result))
         .finally(() => (this.authorizationCheckActive = false));
     }
-  },
+  }
 });
 </script>

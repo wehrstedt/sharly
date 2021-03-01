@@ -95,23 +95,23 @@ import OpenContent from "../components/OpenContent.vue";
 export default defineComponent({
   name: "PageIndex",
   components: { OpenContent, ShareContent },
-  data() {
+  data () {
     return {
       backgroundColor: "#303443",
       slide: "start-panel",
       lorem:
-        "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque voluptatem totam, architecto cupiditate officia rerum, error dignissimos praesentium libero ab nemo provident incidunt ducimus iusto perferendis porro earum. Totam, numquam?",
+        "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque voluptatem totam, architecto cupiditate officia rerum, error dignissimos praesentium libero ab nemo provident incidunt ducimus iusto perferendis porro earum. Totam, numquam?"
     };
   },
 
   watch: {
-    slide() {
+    slide () {
       if (this.slide === "start-panel") {
         this.backgroundColor = "#303443";
       } else {
         this.backgroundColor = "#fff";
       }
-    },
-  },
+    }
+  }
 });
 </script>

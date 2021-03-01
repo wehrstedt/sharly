@@ -146,7 +146,7 @@ export default defineComponent({
           const fileName = this.token.files.filter(
             (f) => f.path === filePath
           )[0].name;
-          link.setAttribute("download", fileName); //or any other extension
+          link.setAttribute("download", fileName); // or any other extension
           document.body.appendChild(link);
           link.click();
         });
@@ -157,13 +157,14 @@ export default defineComponent({
       this.$emit("go-back");
     },
 
-    tokenIdKeyUp(e) {
+    tokenIdKeyUp(e: KeyboardEvent) {
       if (e.keyCode === 13) {
         this.openToken();
       }
     },
 
     openToken() {
+      // @ts-ignore
       this.$refs.tokenForm.validate().then((validationResult: boolean) => {
         if (validationResult) {
           backend
@@ -194,7 +195,7 @@ export default defineComponent({
   setup() {
     return {
       tokenId: "",
-      token: null as Token,
+      token: (null as unknown) as Token,
       errorDlg: false,
       disableOpenTokenBtn: true,
       confirmCopyToClipboard: false,
@@ -210,8 +211,9 @@ export default defineComponent({
 
   mounted() {
     if (this.$refs.tokenId) {
+      // @ts-ignore
       this.$refs.tokenId.focus();
     }
-  },
+  }
 });
 </script>

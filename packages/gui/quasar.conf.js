@@ -9,7 +9,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { configure } = require("quasar/wrappers");
 
-module.exports = configure(function (ctx) {
+module.exports = configure(function () {
   return {
     // https://quasar.dev/quasar-cli/supporting-ts
     supportTS: {
@@ -68,16 +68,8 @@ module.exports = configure(function (ctx) {
       // extractCSS: false,
 
       // https://quasar.dev/quasar-cli/handling-webpack
-      extendWebpack (cfg) {
+      extendWebpack () {
         // linting is slow in TS projects, we execute it only for production builds
-        if (ctx.prod) {
-          cfg.module.rules.push({
-            enforce: "pre",
-            test: /\.(js|vue)$/,
-            loader: "eslint-loader",
-            exclude: /node_modules/
-          });
-        }
       }
     },
 
@@ -87,12 +79,12 @@ module.exports = configure(function (ctx) {
       port: 8080,
       open: true, // opens browser window automatically
       proxy: {
-        "/backend": {
+        "/sharly-backend": {
           // target: "http://" + (process.env.EXCHANGE_PRICE_STORAGE_HOST || "192.168.1.176") + ":" + (process.env.EXCHANGE_PRICE_STORAGE_PORT || 8083).toString(),
           target: "http://" + (process.env.EXCHANGE_PRICE_STORAGE_HOST || "127.0.0.1") + ":" + (process.env.EXCHANGE_PRICE_STORAGE_PORT || 8082).toString(),
           changeOrigin: true,
           pathRewrite: {
-            "^/backend": ""
+            "^/sharly-backend": ""
           }
         }
       }
