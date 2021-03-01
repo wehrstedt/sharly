@@ -48,7 +48,8 @@ export class DatabaseClient {
 	}
 
 	public async insertToken(validUntil: Date | number, text: string, files: File[]): Promise<Token> {
-		const token = new Token(validUntil, text, files);
+		const tokenId = await this.generateUniqueTokenId();
+		const token = new Token(tokenId, validUntil, text, files);
 		await this.collection.insertOne(token);
 		return token;
 	}
@@ -56,21 +57,21 @@ export class DatabaseClient {
 	public async removeToken(token: Token) {
 		await this.collection.deleteOne(token);
 	}
-}
 
-export class Token {
-	token: string;
-	validUntil: number;
-
-	constructor(validUntil: Date | number, public text: string, public files: File[] = []) {
-		if (!text && files.length === 0) {
-			throw new Error(`Please pass a text or at least one file to create a token.`);
+	private async generateUniqueTokenId(): Promise<string> {
+		let token = "";
+		for (let i = 0; i < 5; i++) {
+			token += this.getRandomInt(0, 9).toString();
 		}
 
-		this.validUntil = validUntil instanceof Date ? validUntil.getTime() : validUntil;
-		this.token = "";
-		for (let i = 0; i < 5; i++) {
-			this.token += this.getRandomInt(0, 9).toString();
+		const tokenExists = await this.collection.findOne({
+			token
+		}) !== null;
+
+		if (tokenExists) {
+			return this.generateUniqueTokenId();
+		} else {
+			return token;
 		}
 	}
 
@@ -78,6 +79,25 @@ export class Token {
 		min = Math.ceil(min);
 		max = Math.floor(max);
 		return Math.floor(Math.random() * (max - min)) + min;
+	}
+}
+
+export class Token {
+
+	private _token: string;
+	validUntil: number;
+
+	constructor(token: string, validUntil: Date | number, public text: string, public files: File[] = []) {
+		this._token = token;
+		if (!text && files.length === 0) {
+			throw new Error(`Please pass a text or at least one file to create a token.`);
+		}
+
+		this.validUntil = validUntil instanceof Date ? validUntil.getTime() : validUntil;
+	}
+
+	public get token(): string {
+		return this._token;
 	}
 }
 
