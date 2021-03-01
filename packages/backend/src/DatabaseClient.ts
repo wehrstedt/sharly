@@ -25,6 +25,16 @@ export class DatabaseClient {
 		this.collection = await this.database.collection(DatabaseClient.COLLECTON_NAME);
 	}
 
+	public async getExpiredTokens(): Promise<Token[]>{
+		const result = await this.collection.find({
+			validUntil: {
+				$lte: Date.now()
+			}
+		});
+
+		return result.toArray();
+	}
+
 	public async getToken(token: string): Promise<Token> {
 		const result = await this.collection.findOne({
 			token
@@ -41,6 +51,10 @@ export class DatabaseClient {
 		const token = new Token(validUntil, text, files);
 		await this.collection.insertOne(token);
 		return token;
+	}
+
+	public async removeToken(token: Token) {
+		await this.collection.deleteOne(token);
 	}
 }
 
