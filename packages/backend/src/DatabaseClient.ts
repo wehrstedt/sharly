@@ -25,7 +25,7 @@ export class DatabaseClient {
 		this.collection = await this.database.collection(DatabaseClient.COLLECTON_NAME);
 	}
 
-	public async getExpiredTokens(): Promise<Token[]>{
+	public async getExpiredTokens(): Promise<Token[]> {
 		const result = await this.collection.find({
 			validUntil: {
 				$lte: Date.now()
@@ -55,7 +55,15 @@ export class DatabaseClient {
 	}
 
 	public async removeToken(token: Token) {
-		await this.collection.deleteOne(token);
+		// do not delete tokens to prevent that a token id is generated more then once.
+		// just remove the data from the token
+		await this.collection.updateOne(token, {
+			$set: {
+				text: "",
+				files: [],
+				validUntil: undefined
+			}
+		});
 	}
 
 	private async generateUniqueTokenId(): Promise<string> {
@@ -84,11 +92,9 @@ export class DatabaseClient {
 
 export class Token {
 
-	private _token: string;
 	validUntil: number;
 
-	constructor(token: string, validUntil: Date | number, public text: string, public files: File[] = []) {
-		this._token = token;
+	constructor(public token: string, validUntil: Date | number, public text: string, public files: File[] = []) {
 		if (!text && files.length === 0) {
 			throw new Error(`Please pass a text or at least one file to create a token.`);
 		}
@@ -96,9 +102,6 @@ export class Token {
 		this.validUntil = validUntil instanceof Date ? validUntil.getTime() : validUntil;
 	}
 
-	public get token(): string {
-		return this._token;
-	}
 }
 
 export interface File {

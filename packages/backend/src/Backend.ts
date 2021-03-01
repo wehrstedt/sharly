@@ -51,7 +51,6 @@ export class Backend {
 			}
 
 			await this.databaseClient.removeToken(token);
-			console.log("Deleted token " + token.token)
 		}
 	}
 
