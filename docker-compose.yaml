@@ -5,6 +5,11 @@ services:
   sharly-gui:
     build:
       context: packages/gui
+    ports:
+      - 8083:80
+    environment:
+      SHARLY_BACKEND_HOST: sharly-backend
+      SHARLY_BACKEND_PORT: 8082
     restart: always
     networks:
       - sharly-net

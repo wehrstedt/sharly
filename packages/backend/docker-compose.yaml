@@ -26,6 +26,19 @@ services:
     networks:
       - sharly-net
 
+  sharly-backend:
+    build:
+      context: .
+    restart: always
+    environment:
+      DB_HOST: mongo
+      DB_USER: root
+      DB_PASSWD: toor
+      SHARLY_PASSWD: sharly
+    networks:
+      - sharly-net
+
+
 networks:
   sharly-net:
     driver: bridge

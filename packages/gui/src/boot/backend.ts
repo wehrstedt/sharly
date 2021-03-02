@@ -21,7 +21,16 @@ export interface File {
   path: string;
 }
 
-const _api = axios.create({ baseURL: "/sharly-backend" });
+let backendURL = process.env.SHARLY_BACKEND_HOST;
+if (backendURL) {
+  backendURL += `:${process.env.SHARLY_BACKEND_PORT || "8082"}`;
+} else {
+  // proxy in quasar.conf
+  backendURL = "/sharly-backend";
+}
+
+console.log("BACKEND URL: " + backendURL);
+const _api = axios.create({ baseURL: backendURL });
 const api = {
 
   auth: (password: string): Promise<string> => {
@@ -55,7 +64,7 @@ const api = {
     });
   },
 
-  isAuthorized (): Promise<boolean> {
+  isAuthorized(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       _api.post("auth", {
         token: localStorage.getItem("jwt")
@@ -77,7 +86,7 @@ const api = {
     });
   },
 
-  uploadFiles (formData: any): Promise<File[]> {
+  uploadFiles(formData: any): Promise<File[]> {
     return new Promise((resolve, reject) => {
       _api.post("upload", formData).then(
         (result) => resolve((result as any).data.uploadedFiles as File[])

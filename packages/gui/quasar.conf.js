@@ -80,8 +80,7 @@ module.exports = configure(function () {
       open: true, // opens browser window automatically
       proxy: {
         "/sharly-backend": {
-          // target: "http://" + (process.env.EXCHANGE_PRICE_STORAGE_HOST || "192.168.1.176") + ":" + (process.env.EXCHANGE_PRICE_STORAGE_PORT || 8083).toString(),
-          target: "http://" + (process.env.EXCHANGE_PRICE_STORAGE_HOST || "127.0.0.1") + ":" + (process.env.EXCHANGE_PRICE_STORAGE_PORT || 8082).toString(),
+          target: "http://" + (process.env.SHARLY_BACKEND_HOST || "127.0.0.1") + ":" + (process.env.SHARLY_BACKEND_PORT || 8082).toString(),
           changeOrigin: true,
           pathRewrite: {
             "^/sharly-backend": ""

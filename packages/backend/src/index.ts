@@ -1,4 +1,4 @@
-import { Backend } from "./backend";
+import { Backend } from "./Backend";
 import { SHARLY_PORT } from "./config";
 
 const backend = new Backend();

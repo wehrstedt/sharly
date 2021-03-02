@@ -37,10 +37,10 @@
       <q-input
         flat
         label="Token"
-        ref="tokenId"
+        ref="tokenIdField"
         class="full-width"
         :rules="[(val) => !!val || 'Bitte gib einen Token ein.']"
-        v-model="tokenId"
+        v-model="tokenIdField"
         @keyup="tokenIdKeyUp"
       />
       <q-btn
@@ -110,7 +110,7 @@
       class="full-width q-mt-xs"
       @click="
         token = null;
-        tokenId = '';
+        tokenIdField = '';
         goback();
       "
       v-if="token"
@@ -125,6 +125,10 @@ import { copyToClipboard } from "quasar";
 
 export default defineComponent({
   name: "OpenContent",
+  props: {
+    tokenId: String,
+  },
+
   methods: {
     copySharedTextToClipboard() {
       copyToClipboard(this.token.text).then(() => {
@@ -168,7 +172,7 @@ export default defineComponent({
       this.$refs.tokenForm.validate().then((validationResult: boolean) => {
         if (validationResult) {
           backend
-            .getToken(this.tokenId)
+            .getToken(this.tokenIdField)
             .then((token) => (this.token = token))
             .catch((err) => {
               const errMsg =
@@ -184,7 +188,7 @@ export default defineComponent({
 
               setTimeout(() => {
                 this.errorDlg = false;
-                this.tokenId = "";
+                this.tokenIdField = "";
               }, 2000);
             });
         }
@@ -192,9 +196,9 @@ export default defineComponent({
     },
   },
 
-  setup() {
+  data() {
     return {
-      tokenId: "",
+      tokenIdField: this.tokenId,
       token: (null as unknown) as Token,
       errorDlg: false,
       disableOpenTokenBtn: true,
@@ -204,15 +208,19 @@ export default defineComponent({
   },
 
   watch: {
-    tokenId() {
-      this.disableOpenTokenBtn = this.tokenId.length === 0;
+    tokenIdField() {
+      this.disableOpenTokenBtn = this.tokenIdField.length === 0;
     },
   },
 
   mounted() {
-    if (this.$refs.tokenId) {
+    if (this.$refs.tokenIdField) {
       // @ts-ignore
-      this.$refs.tokenId.focus();
+      this.$refs.tokenIdField.focus();
+    }
+
+    if (this.tokenId) {
+      this.openToken();
     }
   }
 });

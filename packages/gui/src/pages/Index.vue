@@ -23,7 +23,7 @@
           name="open-content"
           class="column no-wrap flex-center"
         >
-          <open-content @go-back="slide = 'start-panel'" />
+          <open-content :token-id="tokenId" @go-back="slide = 'start-panel'" />
         </q-carousel-slide>
         <q-carousel-slide
           name="start-panel"
@@ -95,10 +95,14 @@ import OpenContent from "../components/OpenContent.vue";
 export default defineComponent({
   name: "PageIndex",
   components: { OpenContent, ShareContent },
+  props: {
+    tokenId: String,
+  },
+
   data () {
     return {
-      backgroundColor: "#303443",
-      slide: "start-panel",
+      backgroundColor: this.tokenId ? "fff" : "#303443",
+      slide: this.tokenId ? "open-content" : "start-panel",
       lorem:
         "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque voluptatem totam, architecto cupiditate officia rerum, error dignissimos praesentium libero ab nemo provident incidunt ducimus iusto perferendis porro earum. Totam, numquam?"
     };
