@@ -36,10 +36,10 @@ export class Backend {
 
 		// Routes
 		this.app.post("/auth", this.auth.bind(this));
-		this.app.post("/token/", this.createToken.bind(this));
+		this.app.post("/token/", this.enforceIsAuthenticated.bind(this, this.createToken));
 		this.app.get('/download-file/:file', this.downloadFile.bind(this));
 		this.app.get("/token/:token_id", this.getToken.bind(this));
-		this.app.post("/upload/", this.upload.bind(this));
+		this.app.post("/upload/", this.enforceIsAuthenticated.bind(this, this.upload));
 	}
 
 	public async removeExpiredTokens() {
@@ -57,7 +57,7 @@ export class Backend {
 	public removeExpiredWebTokens() {
 		for (const token of this.webTokens) {
 			verify(token, this.API_SECRET, (err) => {
-				if (err && err.name==="TokenExpiredError") {
+				if (err && err.name === "TokenExpiredError") {
 					this.webTokens.delete(token);
 				}
 			});
@@ -153,6 +153,22 @@ export class Backend {
 			});
 		} else {
 			res.status(404).send();
+		}
+	}
+
+	private async enforceIsAuthenticated(next: (req: Request, res: Response) => Promise<any>, request: Request, response: Response) {
+		const token = request.headers.authorization;
+		if (token) {
+			try {
+				const verified = verify(token, this.API_SECRET) as any;
+				if (this.webTokens.has(verified.webToken)) {
+					await next.call(this, request, response);
+				}
+			} catch (err) {
+				response.status(401).send();
+			}
+		} else {
+			response.status(401).send();
 		}
 	}
 
