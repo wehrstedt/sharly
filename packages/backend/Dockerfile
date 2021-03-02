@@ -8,18 +8,22 @@ ENV MONGO_DB_USER root
 ENV MONGO_DB_PASSWORD toor
 
 # Sourcen kopieren
-COPY . .
+COPY package.json .
+COPY yarn.lock .
 
 # Module installieren
 RUN yarn install
 
 # Transpilieren
+COPY src src
+COPY tsconfig.json .
+COPY tslint.json .
 RUN yarn run build
 
 # Aufräumen
 RUN yarn install --production
 RUN rm -r src
-RUN rm tsconfig.json yarn.lock
+RUN rm tsconfig.json tslint.json yarn.lock
 
 # REST-Service starten
 EXPOSE 8082

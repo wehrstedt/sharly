@@ -2,12 +2,22 @@
 FROM node:13.14-alpine as develop-stage
 WORKDIR /app
 COPY package*.json ./
+COPY yarn.lock ./
 RUN yarn global add @quasar/cli
-COPY . .
 
 # build stage
 FROM develop-stage as build-stage
 RUN yarn
+COPY .quasar .quasar
+COPY public public
+COPY src src
+COPY src-pwa src-pwa
+COPY .eslintignore ./
+COPY .eslintrc.js ./
+COPY .postcssrc.js ./
+COPY babel.config.js ./
+COPY quasar.conf.js ./
+COPY tsconfig.json ./
 RUN quasar build -m pwa
 
 # production stage
