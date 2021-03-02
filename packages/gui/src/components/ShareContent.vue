@@ -268,9 +268,10 @@ export default defineComponent({
       this.authorizationActive = true;
       backend
         .auth(this.password)
-        .then(() => {
+        .then((token) => {
           this.authorizationActive = false;
           this.authorized = true;
+          this.authToken = token;
         })
         .catch((err) => {
           this.authorizationActive = false;
@@ -303,7 +304,15 @@ export default defineComponent({
             this.uploadFinished(tokenId);
           }
         })
-        .catch((err: string) => alert(`Fehler: ${err}`));
+        .catch((err) => {
+          let errMsg = err.toString();
+          if (err.response) {
+            errMsg = `${err.response.status}: ${err.response.statusText}`;
+          }
+
+          this.loading = false;
+          alert(`Fehler: ${errMsg}`)
+        });
     },
 
     copyTokenToClipboard () {
@@ -402,7 +411,13 @@ export default defineComponent({
         .uploadFiles(formData)
         .then(this.createToken.bind(this))
         .catch((err) => {
-          alert(`File upload failed: ${err}`);
+          let errMsg = err.toString();
+          if (err.response) {
+            errMsg = `${err.response.status}: ${err.response.statusText}`;
+          }
+
+          this.loading = false;
+          alert(`Fehler: ${errMsg}`)
         });
     },
 
@@ -492,7 +507,13 @@ export default defineComponent({
       this.authorizationCheckActive = true;
       backend
         .isAuthorized()
-        .then((result) => (this.authorized = result))
+        .then((result) => {
+          this.authorized = result;
+          if (!this.authorized) {
+            localStorage.removeItem("jwt");
+            this.authToken = null;
+          }
+        })
         .finally(() => (this.authorizationCheckActive = false));
     }
   }

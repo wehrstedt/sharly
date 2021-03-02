@@ -1,7 +1,10 @@
 import axios from "axios";
 
 const jwt = localStorage.getItem("jwt");
-axios.defaults.headers.common.Authorization = jwt;
+if (jwt) {
+  axios.defaults.headers.common.Authorization = jwt;
+}
+
 axios.interceptors.response.use(response => response, error => {
   if (error.response.status === 401) {
     throw new Error("Not authorized");
@@ -40,6 +43,8 @@ const api = {
       })
         .then((result) => {
           localStorage.setItem("jwt", result.data.token);
+          axios.defaults.headers.common.Authorization = result.data.token;
+          _api.defaults.headers.common.Authorization = result.data.token;
           resolve(result.data.token);
         })
         .catch(reject);
