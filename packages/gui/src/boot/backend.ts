@@ -96,4 +96,4 @@ const api = {
 
 };
 
-export { axios, api };
+export { axios, api, backendURL };

@@ -150,7 +150,7 @@
           <q-form
             @submit="uploadFiles"
             ref="fileUploadForm"
-            action="/sharly-backend/upload"
+            :action="backendURL + '/upload'"
             method="POST"
           >
             <q-file
@@ -226,7 +226,7 @@
 </template>
 
 <script lang="ts">
-import { api as backend, File } from "../boot/backend";
+import { api as backend, File, backendURL } from "../boot/backend";
 import { copyToClipboard } from "quasar";
 import * as moment from "moment";
 
@@ -432,9 +432,10 @@ export default defineComponent({
 
     const authToken = localStorage.getItem("jwt");
     return {
+      backendURL,
       authToken,
       authorized: false,
-      authorizationCheckActive: true,
+      authorizationCheckActive: authToken !== null,
       authorizationActive: false,
       authError: false,
       authHint: "",

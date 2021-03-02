@@ -3,13 +3,17 @@ version: '3.1'
 services:
 
   sharly-gui:
+    depends_on:
+      - sharly-backend
     build:
       context: packages/gui
     ports:
       - 8083:80
     environment:
-      SHARLY_BACKEND_HOST: sharly-backend
-      SHARLY_BACKEND_PORT: 8082
+      - SHARLY_BACKEND_HOST=sharly-backend
+      - SHARLY_BACKEND_PORT=8082
+    links:
+      - sharly-backend
     restart: always
     networks:
       - sharly-net
@@ -26,6 +30,8 @@ services:
       - sharly-net
 
   sharly-backend:
+    depends_on:
+      - mongo
     build:
       context: packages/backend
     restart: always

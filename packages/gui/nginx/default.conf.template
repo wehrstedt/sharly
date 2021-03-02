@@ -1,0 +1,27 @@
+# based on https://gist.github.com/szarapka/05ba804dfd1c10ad47bf
+server {
+    listen       80;
+    server_name  localhost;
+
+    location /sharly-backend {
+      rewrite /sharly-backend/(.*) /$1 break;
+      proxy_pass http://${SHARLY_BACKEND_HOST}:${SHARLY_BACKEND_PORT};
+      proxy_set_header Host $http_host;
+    }
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+        try_files $uri $uri/ @rewrites;
+    }
+
+    location @rewrites {
+      rewrite ^(.+)$ /index.html last;
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+}
