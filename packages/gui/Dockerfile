@@ -8,7 +8,6 @@ RUN yarn global add @quasar/cli
 # build stage
 FROM develop-stage as build-stage
 RUN yarn
-COPY .quasar .quasar
 COPY public public
 COPY src src
 COPY src-pwa src-pwa
