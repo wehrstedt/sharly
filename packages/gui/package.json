@@ -2,7 +2,7 @@
   "name": "sharly",
   "version": "0.0.1",
   "description": "Copy sensitive informations easily via a self hosted web application",
-  "productName": "Copy and pasta",
+  "productName": "SHARLY",
   "author": "Maximilian Wehrstedt <wehrstedt.coding@outlook.de>",
   "private": true,
   "scripts": {

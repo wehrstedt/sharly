@@ -127,9 +127,9 @@ module.exports = configure(function () {
       workboxPluginMode: "GenerateSW", // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: "Copy and pasta",
-        short_name: "Copy and pasta",
-        description: "Copy sensitive informations easily via a self hosted web application",
+        name: "SHARLY",
+        short_name: "SHARLY",
+        description: "Share text, passwords, files and more. Fast, simple, secure.",
         display: "standalone",
         orientation: "portrait",
         background_color: "#ffffff",

@@ -375,8 +375,8 @@ export default defineComponent({
       const url = `${window.location.protocol}//${window.location.host}/#/token/${this.tokenId}`;
       if (navigator.share) {
         navigator.share({
-          title: "Jemand möchte was mit dir Teilen",
-          text: `Hallo. Jemand möchte mit dir etwas via Sharly teilen. Öffne diesen Link, um den Inhalt zu sehen: ${url}`,
+          title: "Sharly | Jemand möchte was mit dir teilen",
+          text: `Hallo. Jemand möchte mit dir etwas via Sharly teilen. Öffne diesen Link, um den Inhalt zu sehen:`,
           url
         });
       } else {
