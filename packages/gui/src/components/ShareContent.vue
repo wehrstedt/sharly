@@ -372,7 +372,7 @@ export default defineComponent({
     },
 
     shareViaWebShare () {
-      const url = `${window.location.protocol}//${window.location.host}/token/${this.tokenId}`;
+      const url = `${window.location.protocol}//${window.location.host}/#/token/${this.tokenId}`;
       if (navigator.share) {
         navigator.share({
           title: "Jemand möchte was mit dir Teilen",
