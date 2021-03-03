@@ -55,7 +55,7 @@ export class DatabaseClient {
 			token
 		});
 
-		if (!result) {
+		if (!result || !result.validUntil) { // validUntil will be cleared if the token is deleted
 			throw new Error(`Cannot find token with id ${token}.`);
 		}
 
