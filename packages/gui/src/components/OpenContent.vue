@@ -42,6 +42,8 @@
         :rules="[(val) => !!val || 'Bitte gib einen Token ein.']"
         v-model="tokenIdField"
         @keyup="tokenIdKeyUp"
+        @focus="$emit('input-focus')"
+        @blur="$emit('input-blur')"
       />
       <q-btn
         icon-right="mdi-lock-open"

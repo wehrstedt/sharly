@@ -133,6 +133,8 @@
             outlined
             autogrow
             label="Text eingeben..."
+            @focus="$emit('input-focus')"
+            @blur="$emit('input-blur')"
           >
             <template v-slot:append>
               <q-btn
@@ -183,6 +185,8 @@
             bottom-slots
             :error="authError"
             @keyup="passwordFieldKeyUp"
+            @focus="$emit('input-focus')"
+            @blur="$emit('input-blur')"
           >
           </q-input>
         </div>
@@ -242,6 +246,7 @@ export default defineComponent({
       this.sharedText = "";
       this.disableUploadBtn = true;
       this.filesToUpload = [];
+      this.$emit("input-blur");
       this.goback();
     },
 
@@ -272,6 +277,11 @@ export default defineComponent({
           this.authorizationActive = false;
           this.authorized = true;
           this.authToken = token;
+
+          setTimeout(() => {
+            // @ts-ignore
+            this.$refs.sharedText.$el.focus();
+          }, 20);
         })
         .catch((err) => {
           this.authorizationActive = false;
@@ -509,12 +519,26 @@ export default defineComponent({
         .isAuthorized()
         .then((result) => {
           this.authorized = result;
-          if (!this.authorized) {
+          if (this.authorized) {
+            setTimeout(() => {
+              // @ts-ignore
+              this.$refs.sharedText.$el.focus();
+            }, 20);
+          } else {
             localStorage.removeItem("jwt");
             this.authToken = null;
+            setTimeout(() => {
+              // @ts-ignore
+              this.$refs.password.$el.focus();
+            }, 20);
           }
         })
         .finally(() => (this.authorizationCheckActive = false));
+    } else {
+      setTimeout(() => {
+        // @ts-ignore
+        this.$refs.password.$el.focus();
+      }, 20);
     }
   }
 });

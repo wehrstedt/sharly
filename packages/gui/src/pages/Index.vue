@@ -1,9 +1,9 @@
 <template>
   <div class="q-pa-md">
-    <div class="row items-center justify-evenly q-mt-xl" style="color: white">
+    <div :class="'row items-center justify-evenly q-mt-' + (showSharly ? 'xl' : 'sm q-mb-lg')" style="color: white">
       <q-icon name="mdi-emoticon-wink" style="font-size: 80px" />
     </div>
-    <div class="row items-center justify-evenly" style="color: white">
+    <div class="row items-center justify-evenly" style="color: white" v-if="showSharly">
       <h2 class="q-mt-lg">SHARLY</h2>
     </div>
     <div class="row items-center justify-evenly full-width">
@@ -23,7 +23,7 @@
           name="open-content"
           class="column no-wrap flex-center"
         >
-          <open-content :token-id="tokenId" @go-back="slide = 'start-panel'" />
+          <open-content :token-id="tokenId" @go-back="slide = 'start-panel'; showSharly=true" @input-focus="showSharly=false" @input-blur="showSharly=true" />
         </q-carousel-slide>
         <q-carousel-slide
           name="start-panel"
@@ -66,18 +66,11 @@
           </div>
         </q-carousel-slide>
         <q-carousel-slide name="share-content" class="column no-wrap">
-          <share-content @go-back="slide = 'start-panel'" />
+          <share-content @go-back="slide = 'start-panel'; showSharly=true" @input-focus="showSharly=false" @input-blur="showSharly=true" />
         </q-carousel-slide>
       </q-carousel>
     </div>
 
-    <div class="row items-center justify-evenly q-mb-xl" style="color: white">
-      <span class="text-body1"> </span>
-    </div>
-
-    <q-footer reveal class="q-pa-md text-center">
-      Teile Texte, Passwörter, Dateien und mehr.<br />Schnell, einfach, sicher.
-    </q-footer>
   </div>
 </template>
 
@@ -101,7 +94,8 @@ export default defineComponent({
 
   data () {
     return {
-      backgroundColor: this.tokenId ? "fff" : "#303443",
+      backgroundColor: this.tokenId ? "#fff" : "#303443",
+      showSharly: true,
       slide: this.tokenId ? "open-content" : "start-panel",
       lorem:
         "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque voluptatem totam, architecto cupiditate officia rerum, error dignissimos praesentium libero ab nemo provident incidunt ducimus iusto perferendis porro earum. Totam, numquam?"
