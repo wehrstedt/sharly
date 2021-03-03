@@ -256,8 +256,8 @@ export default defineComponent({
       } else {
         this.$q
           .dialog({
-            title: this.$t("confirmation_upper"),
-            message: this.$t("submit_abort"),
+            title: this.$t("confirmation_upper").toString(),
+            message: this.$t("submit_abort").toString(),
             ok: this.$t("yes_upper"),
             cancel: this.$t("no_upper")
           })
@@ -283,7 +283,7 @@ export default defineComponent({
           this.authorizationActive = false;
           let msg: string = err instanceof Error ? err.message : err.toString();
           if (msg.match(/401/)) {
-            msg = this.$t("invalid_password");
+            msg = this.$t("invalid_password").toString();
           }
 
           this.authError = true;
@@ -317,7 +317,7 @@ export default defineComponent({
           }
 
           this.loading = false;
-          alert(`Fehler: ${errMsg}`)
+          alert(`Fehler: ${errMsg}`);
         });
     },
 
@@ -382,8 +382,8 @@ export default defineComponent({
       const url = `${window.location.protocol}//${window.location.host}/#/token/${this.tokenId}`;
       if (navigator.share) {
         navigator.share({
-          title: this.$t("webshare_title"),
-          text: this.$t("webshare_text"),
+          title: this.$t("webshare_title").toString(),
+          text: this.$t("webshare_text").toString(),
           url
         });
       } else {
@@ -424,7 +424,7 @@ export default defineComponent({
           }
 
           this.loading = false;
-          alert(`${this.$t('error_upper')}: ${errMsg}`)
+          alert(`${this.$t("error_upper")}: ${errMsg}`);
         });
     },
 
@@ -447,8 +447,11 @@ export default defineComponent({
     }
 
     const timeUnits = [
+      // @ts-ignore
       { label: this.$t("minutes_upper"), value: "minutes" },
+      // @ts-ignore
       { label: this.$t("hours_upper"), value: "hours" },
+      // @ts-ignore
       { label: this.$t("days_upper"), value: "days" }
     ];
 

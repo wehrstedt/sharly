@@ -72,12 +72,12 @@ module.exports = configure(function() {
       extendWebpack(cfg) {
         cfg.module.rules.push({
           resourceQuery: /blockType=i18n/,
-          type: 'javascript/auto',
+          type: "javascript/auto",
           use: [
-            { loader: '@kazupon/vue-i18n-loader' },
-            { loader: 'yaml-loader' }
+            { loader: "@kazupon/vue-i18n-loader" },
+            { loader: "yaml-loader" }
           ]
-        })
+        });
       }
     },
 

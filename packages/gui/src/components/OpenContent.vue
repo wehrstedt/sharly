@@ -37,7 +37,7 @@
         :label="$t('token_label')"
         ref="tokenIdField"
         class="full-width"
-        :rules="[(val) => !!val 
+        :rules="[(val) => !!val
          || $t('please_enter_a_token')]"
         v-model="tokenIdField"
         @keyup="tokenIdKeyUp"
