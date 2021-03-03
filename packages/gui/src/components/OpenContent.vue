@@ -55,7 +55,7 @@
       />
     </q-form>
 
-    <q-form class="row q-pt-md full-width q-pt-md q-pb-md" v-if="token">
+    <q-form class="row q-pt-md full-width q-pt-md q-pb-md" v-if="token.text">
       <div class="column col-10">
         <span class="text-subtitle2" style="display: inline-block"
           >Geteilter Text:</span
@@ -97,7 +97,7 @@
           @click="downloadFile(file.path)"
         >
           <q-item-section avatar>
-            <q-icon name="mdi-file" />
+            <q-icon :name="getFileIcon(file.path)" />
           </q-item-section>
 
           <q-item-section>{{ file.name }}</q-item-section>
@@ -156,6 +156,46 @@ export default defineComponent({
           document.body.appendChild(link);
           link.click();
         });
+      }
+    },
+
+    getFileIcon(fileName) {
+      const splitted = fileName.split(".");
+      if (splitted.length > 1) {
+        const ext = splitted[1].toLowerCase();
+        switch (ext) {
+          case "doc":
+          case "docx":
+            return "mdi-microsoft-word";
+
+          case "xls":
+          case "xlsx":
+          case "xltx":
+          case "xlt":
+          case "csv":
+            return "mdi-microsoft-excel";
+
+          case "txt":
+          case "log":
+            return "mdi-text-box-outline";
+
+          case "pdf":
+            return "mdi-file-pdf";
+
+          case "png":
+          case "jpg":
+          case "jpeg":
+          case "bmp":
+          case "tiff":
+          case "swf":
+          case "svg":
+            return "mdi-file-image";
+
+          case "zip":
+            return "mdi-archive";
+        }
+      } else {
+        return "mdi-file";
       }
     },
 
