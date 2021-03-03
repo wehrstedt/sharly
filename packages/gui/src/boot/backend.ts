@@ -32,7 +32,6 @@ if (backendURL) {
   backendURL = "/sharly-backend";
 }
 
-console.log("BACKEND URL: " + backendURL);
 const _api = axios.create({ baseURL: backendURL });
 const api = {
 

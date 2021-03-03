@@ -1,6 +1,6 @@
 import { Collection, Db, FilterQuery, MongoClient, Timestamp } from "mongodb";
 import waitOn from "wait-on";
-import { DB_HOST, DB_PASSWD, DB_PORT, DB_USER } from "./config";
+import { DB_HOST, DB_PASSWD, DB_PORT, DB_USER, TOKEN_LENGTH } from "./config";
 
 export class DatabaseClient {
 
@@ -83,7 +83,7 @@ export class DatabaseClient {
 
 	private async generateUniqueTokenId(): Promise<string> {
 		let token = "";
-		for (let i = 0; i < 5; i++) {
+		for (let i = 0; i < TOKEN_LENGTH; i++) {
 			token += this.getRandomInt(0, 9).toString();
 		}
 

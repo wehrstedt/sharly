@@ -6,6 +6,7 @@ export const DB_PASSWD = getEnvVariable("DB_PASSWD");
 export const DB_PORT = parseInt(getEnvVariableOrDefault("DB_PORT", "27017"), 10);
 export const FILE_UPLD_DIR = getEnvVariableOrDefault("FILE_UPLD_DIR", "files");
 export const FILE_TMP_DIR = getEnvVariableOrDefault("FILE_TMP_DIR", "files-tmp");
+export const TOKEN_LENGTH = parseInt(getEnvVariableOrDefault("TOKEN_LENGTH", "6"), 10);
 
 function getEnvVariable(name: string) {
 	const variable = process.env[name];
