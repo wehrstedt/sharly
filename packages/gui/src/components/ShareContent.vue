@@ -139,20 +139,10 @@
             :label="$t('enter_text') + '...'"
             @focus="$emit('input-focus')"
             @blur="$emit('input-blur')"
-          >
-            <template v-slot:append>
-              <q-btn
-                round
-                dense
-                flat
-                icon="mdi-paperclip"
-                @click="$refs.files.$el.click()"
-              />
-            </template>
-          </q-input>
+          />
         </div>
 
-        <div class="column full-width q-pt-md" v-show="showFileInput">
+        <div class="column full-width q-pt-md">
           <q-form
             @submit="uploadFiles"
             ref="fileUploadForm"
@@ -162,6 +152,7 @@
             <q-file
               name="files"
               ref="files"
+              for="files"
               v-model="filesToUpload"
               :label="$t('label_attachments')"
               outlined
@@ -169,7 +160,6 @@
               multiple
               append
               clearable
-              @input="filesSelected"
             />
           </q-form>
         </div>
@@ -232,6 +222,12 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+label[for="files"] :first-child {
+ min-height: 70px;
+}
+</style>
 
 <script lang="ts">
 import { api as backend, File, backendURL } from "../boot/backend";
@@ -350,14 +346,6 @@ export default defineComponent({
 
     goback () {
       this.$emit("go-back");
-    },
-
-    filesSelected (files: File[] | null) {
-      if (files) {
-        this.showFileInput = true;
-      } else {
-        this.showFileInput = false;
-      }
     },
 
     openFile () {
@@ -491,7 +479,6 @@ export default defineComponent({
       popupBottomNotificationIcon: "",
       triggerFileUpload: false,
       filesToUpload: null,
-      showFileInput: false,
       password: ""
     };
   },
@@ -507,16 +494,11 @@ export default defineComponent({
 
     sharedText () {
       this.disableUploadBtn =
-        this.sharedText.length === 0 && !this.showFileInput;
+        this.sharedText.length === 0 && (!this.filesToUpload || this.filesToUpload.length === 0);
     },
 
     filesToUpload () {
-      this.showFileInput = this.filesToUpload && this.filesToUpload.length > 0;
-    },
-
-    showFileInput () {
-      this.disableUploadBtn =
-        this.sharedText.length === 0 && !this.showFileInput;
+      this.disableUploadBtn = (!this.filesToUpload || this.filesToUpload.length === 0) && this.sharedText.length === 0
     },
 
     tokenId () {

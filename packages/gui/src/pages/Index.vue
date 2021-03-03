@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <div :class="'row items-center justify-evenly q-mt-' + (showSharly ? 'xl' : 'sm q-mb-lg')" style="color: white">
+    <div :class="'row items-center justify-evenly q-mt-' + (showSharly ? 'sm' : 'sm q-mb-lg')" style="color: white">
       <q-icon name="mdi-emoticon-wink" style="font-size: 80px" />
     </div>
     <div class="row items-center justify-evenly" style="color: white" v-if="showSharly">
@@ -100,9 +100,7 @@ export default defineComponent({
     },
 
     inputFocus() {
-      setTimeout(() => {
-        this.showSharly = false;
-      }, 100);
+      this.showSharly = false;
     }
   },
 
