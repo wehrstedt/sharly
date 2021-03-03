@@ -159,7 +159,7 @@ export default defineComponent({
       }
     },
 
-    getFileIcon(fileName) {
+    getFileIcon(fileName: string) {
       const splitted = fileName.split(".");
       if (splitted.length > 1) {
         const ext = splitted[1].toLowerCase();
