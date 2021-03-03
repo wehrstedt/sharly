@@ -23,7 +23,7 @@
           name="open-content"
           class="column no-wrap flex-center"
         >
-          <open-content :token-id="tokenId" @go-back="slide = 'start-panel'; showSharly=true" @input-focus="showSharly=false" @input-blur="showSharly=true" />
+          <open-content :token-id="tokenId" @go-back="slide = 'start-panel'; showSharly=true" @input-focus="inputFocus" @input-blur="inputBlur" />
         </q-carousel-slide>
         <q-carousel-slide
           name="start-panel"
@@ -66,7 +66,7 @@
           </div>
         </q-carousel-slide>
         <q-carousel-slide name="share-content" class="column no-wrap">
-          <share-content @go-back="slide = 'start-panel'; showSharly=true" @input-focus="showSharly=false" @input-blur="showSharly=true" />
+          <share-content @go-back="slide = 'start-panel'; showSharly=true" @input-focus="inputFocus" @input-blur="inputBlur" />
         </q-carousel-slide>
       </q-carousel>
     </div>
@@ -90,6 +90,20 @@ export default defineComponent({
   components: { OpenContent, ShareContent },
   props: {
     tokenId: String,
+  },
+
+  methods: {
+    inputBlur() {
+      setTimeout(() => {
+        this.showSharly = true;
+      }, 100);
+    },
+
+    inputFocus() {
+      setTimeout(() => {
+        this.showSharly = false;
+      }, 100);
+    }
   },
 
   data () {
