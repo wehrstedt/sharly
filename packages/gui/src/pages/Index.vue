@@ -44,7 +44,7 @@
                   size="xl"
                 />
               </div>
-              <div class="row text-body1" style="color: white">Öffnen</div>
+              <div class="row text-body1" style="color: white">{{ $t("open_upper") }}</div>
             </div>
 
             <div
@@ -61,7 +61,7 @@
                   size="xl"
                 />
               </div>
-              <div class="row text-body1" style="color: white">Teilen</div>
+              <div class="row text-body1" style="color: white">{{ $t("share_upper") }}</div>
             </div>
           </div>
         </q-carousel-slide>

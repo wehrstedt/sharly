@@ -9,7 +9,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { configure } = require("quasar/wrappers");
 
-module.exports = configure(function () {
+module.exports = configure(function() {
   return {
     // https://quasar.dev/quasar-cli/supporting-ts
     supportTS: {
@@ -25,7 +25,8 @@ module.exports = configure(function () {
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/boot-files
     boot: [
-      "composition-api"
+      "composition-api",
+      "i18n"
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -68,8 +69,15 @@ module.exports = configure(function () {
       // extractCSS: false,
 
       // https://quasar.dev/quasar-cli/handling-webpack
-      extendWebpack () {
-        // linting is slow in TS projects, we execute it only for production builds
+      extendWebpack(cfg) {
+        cfg.module.rules.push({
+          resourceQuery: /blockType=i18n/,
+          type: 'javascript/auto',
+          use: [
+            { loader: '@kazupon/vue-i18n-loader' },
+            { loader: 'yaml-loader' }
+          ]
+        })
       }
     },
 
@@ -200,7 +208,7 @@ module.exports = configure(function () {
       // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration
       nodeIntegration: true,
 
-      extendWebpack (/* cfg */) {
+      extendWebpack(/* cfg */) {
         // do something with Electron main process Webpack cfg
         // chainWebpack also available besides this extendWebpack
       }

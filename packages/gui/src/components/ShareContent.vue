@@ -3,13 +3,11 @@
     <q-dialog v-model="uploadDialog">
       <q-card style="min-width: 350px">
         <q-card-section>
-          <div class="text-h6">Gültigkeitsdauer</div>
+          <div class="text-h6">{{ $t("period_of_validity") }}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          Wähle aus, wie lange der Inhalt abgerufen werden kann. Nach Ablauf der
-          eingestellten Gültigkeitsdauer wird dein geteilter Inhalt vom Server
-          gelöscht.
+          {{ $t("period_of_validity_expl") }}
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -36,11 +34,11 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Abbrechen" icon="mdi-close" v-close-popup />
+          <q-btn flat :label="$t('abort_upper')" icon="mdi-close" v-close-popup />
           <q-btn
             flat
             icon-right="mdi-cloud-upload"
-            label="Teilen"
+            :label="$t('share_upper')"
             @click="upload"
           />
         </q-card-actions>
@@ -54,12 +52,11 @@
     <q-dialog v-model="uploadFinishedDialog" @hide="sharedFinished">
       <q-card style="min-width: 350px">
         <q-card-section>
-          <div class="text-h6">Bestätigung</div>
+          <div class="text-h6">{{ $t('confirmation_upper') }}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          Der Inhalt wurde geteilt. Du kannst mit dem folgenden Token auf den
-          Inhalt zugreifen:
+          {{ $t('token_created_submit_text') }}:
           <div class="q-pt-md">
             <span class="text-body1">
               {{ tokenId }}
@@ -80,7 +77,7 @@
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="Schließen" v-close-popup />
+          <q-btn flat :label="$t('close_upper')" v-close-popup />
           <!-- <q-btn
             flat
             icon-right="mdi-qrcode"
@@ -110,16 +107,16 @@
         style="position: absolute; left: 0"
         @click="goback"
       />
-      <div class="text-h6">Inhalt teilen</div>
+      <div class="text-h6">{{ $t('header_share_content') }}</div>
       <div class="text-body2" v-if="authorized || authorizationCheckActive">
-        Was möchtest du teilen?
+        {{ $t('subheader_share_content') }}
       </div>
       <div
         class="text-body2"
         style="text-align: left"
         v-if="!authorized && !authorizationCheckActive"
       >
-        Du musst dich authorisieren, um Inhalte teilen zu können:
+        {{ $t('enforce_authorization_msg') }}:
       </div>
 
       <div
@@ -132,7 +129,7 @@
             v-model="sharedText"
             outlined
             autogrow
-            label="Text eingeben..."
+            :label="$t('enter_text') + '...'"
             @focus="$emit('input-focus')"
             @blur="$emit('input-blur')"
           >
@@ -159,7 +156,7 @@
               name="files"
               ref="files"
               v-model="filesToUpload"
-              label="Anhänge"
+              :label="$t('label_attachments')"
               outlined
               counter
               multiple
@@ -181,7 +178,7 @@
             ref="password"
             type="password"
             outlined
-            label="Passwort"
+            :label="$t('label_password')"
             bottom-slots
             :error="authError"
             @keyup="passwordFieldKeyUp"
@@ -197,14 +194,14 @@
         @click="abortWithConfirm"
         class="q-mt-md float-left"
         icon="mdi-close"
-        label="Abbrechen"
+        :label="$t('abort_upper')"
       />
 
       <q-btn
         flat
         class="q-mt-md float-right"
         icon-right="mdi-cloud-upload"
-        label="Teilen"
+        :label="$t('share_upper')"
         :disable="disableUploadBtn"
         @click="uploadDialog = true"
         v-if="authorized || authorizationCheckActive"
@@ -214,7 +211,7 @@
         flat
         class="q-mt-md float-right"
         icon-right="mdi-login"
-        label="Anmelden"
+        :label="$t('label_submit')"
         :disable="password.length === 0"
         @click="authorize"
         v-if="!authorized && !authorizationCheckActive"
@@ -259,11 +256,10 @@ export default defineComponent({
       } else {
         this.$q
           .dialog({
-            title: "Bestätigung",
-            message:
-              "Möchtest du wirklich abbrechen? Deine bisherigen Eingaben gehen verloren!",
-            ok: "Ja",
-            cancel: "Nein"
+            title: this.$t("confirmation_upper"),
+            message: this.$t("submit_abort"),
+            ok: this.$t("yes_upper"),
+            cancel: this.$t("no_upper")
           })
           .onOk(this.abort.bind(this));
       }
@@ -287,7 +283,7 @@ export default defineComponent({
           this.authorizationActive = false;
           let msg: string = err instanceof Error ? err.message : err.toString();
           if (msg.match(/401/)) {
-            msg = "Passwort falsch";
+            msg = this.$t("invalid_password");
           }
 
           this.authError = true;
@@ -305,7 +301,7 @@ export default defineComponent({
         .createToken(this.getValidUntilTimestamp(), this.sharedText, files)
         .then((tokenId: string) => {
           const uploadTime = Date.now() - this.uploadStartTime;
-          const minShowThrobber = 1500;
+          const minShowThrobber = 1000;
           if (uploadTime < minShowThrobber) {
             setTimeout(() => {
               this.uploadFinished(tokenId);
@@ -327,7 +323,7 @@ export default defineComponent({
 
     copyTokenToClipboard () {
       copyToClipboard(this.tokenId).then(() => {
-        this.popupBottomNotificationText = "Token kopiert!";
+        this.popupBottomNotificationText = `${this.$t("token_copied_msg")}!`;
         this.popupBottomNotificationIcon = "mdi-check";
         this.showPopupBottomNotification = true;
         setTimeout(() => {
@@ -370,6 +366,7 @@ export default defineComponent({
 
     passwordFieldKeyUp (e: KeyboardEvent) {
       if (e.keyCode === 13) {
+        this.$emit("input-blur");
         this.authorize();
       }
     },
@@ -385,13 +382,13 @@ export default defineComponent({
       const url = `${window.location.protocol}//${window.location.host}/#/token/${this.tokenId}`;
       if (navigator.share) {
         navigator.share({
-          title: "Sharly | Jemand möchte was mit dir teilen",
-          text: `Hallo. Jemand möchte mit dir etwas via Sharly teilen. Öffne diesen Link, um den Inhalt zu sehen:`,
+          title: this.$t("webshare_title"),
+          text: this.$t("webshare_text"),
           url
         });
       } else {
         copyToClipboard(url).then(() => {
-          this.popupBottomNotificationText = "Link kopiert!";
+          this.popupBottomNotificationText = `${this.$t("link_copied")}!`;
           this.popupBottomNotificationIcon = "mdi-close";
           this.showPopupBottomNotification = true;
           setTimeout(() => {
@@ -427,7 +424,7 @@ export default defineComponent({
           }
 
           this.loading = false;
-          alert(`Fehler: ${errMsg}`)
+          alert(`${this.$t('error_upper')}: ${errMsg}`)
         });
     },
 
@@ -440,7 +437,7 @@ export default defineComponent({
     }
   },
 
-  setup () {
+  data () {
     const minutes = [];
     for (var i = 1; i <= 60; i++) {
       minutes.push({
@@ -450,9 +447,9 @@ export default defineComponent({
     }
 
     const timeUnits = [
-      { label: "Minuten", value: "minutes" },
-      { label: "Stunden", value: "hours" },
-      { label: "Tage", value: "days" }
+      { label: this.$t("minutes_upper"), value: "minutes" },
+      { label: this.$t("hours_upper"), value: "hours" },
+      { label: this.$t("days_upper"), value: "days" }
     ];
 
     const authToken = localStorage.getItem("jwt");

@@ -12,6 +12,7 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@intlify/vue-i18n-loader": "^1.1.0",
     "@quasar/extras": "^1.0.0",
     "@vue/composition-api": "^0.6.4",
     "axios": "^0.21.1",
@@ -19,12 +20,15 @@
     "husky": "^5.1.2",
     "lint-staged": "^10.5.4",
     "moment": "^2.29.1",
-    "quasar": "^1.0.0"
+    "quasar": "^1.0.0",
+    "vue-i18n": "^8.23.0",
+    "yaml-loader": "^0.6.0"
   },
   "devDependencies": {
     "@quasar/app": "^2.0.0",
     "@types/axios": "^0.14.0",
     "@types/node": "^10.17.15",
+    "@types/vue-i18n": "^7.0.0",
     "@typescript-eslint/eslint-plugin": "^3.3.0",
     "@typescript-eslint/parser": "^3.3.0",
     "babel-eslint": "^10.0.1",

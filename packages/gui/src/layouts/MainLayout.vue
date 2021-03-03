@@ -5,7 +5,8 @@
     </q-page-container>
 
     <q-footer class="q-pa-md text-center">
-      Teile Texte, Passwörter, Dateien und mehr.<br />Schnell, einfach, sicher.
+      {{ $t('slogan_1') }}<br />
+      {{ $t('slogan_2') }}
     </q-footer>
   </q-layout>
 </template>

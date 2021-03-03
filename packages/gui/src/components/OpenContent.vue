@@ -4,9 +4,7 @@
       <q-card style="width: 350px">
         <q-card-section class="row items-center no-wrap">
           <q-icon name="mdi-emoticon-sad" />
-          <span class="text-weight-bold q-ml-sm"
-            >Es wurde kein Inhalt für dieses Token gefunden!</span
-          >
+          <span class="text-weight-bold q-ml-sm">{{ $t("token_not_found") }}!</span>
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -30,16 +28,17 @@
         style="position: absolute; left: 0"
         @click="goback"
       />
-      <div class="text-h6">Inhalt öffnen</div>
+      <div class="text-h6">{{ $t("header_open_token") }}</div>
     </div>
 
     <q-form class="row q-pt-xs full-width" ref="tokenForm" v-if="!token">
       <q-input
         flat
-        label="Token"
+        :label="$t('token_label')"
         ref="tokenIdField"
         class="full-width"
-        :rules="[(val) => !!val || 'Bitte gib einen Token ein.']"
+        :rules="[(val) => !!val 
+         || $t('please_enter_a_token')]"
         v-model="tokenIdField"
         @keyup="tokenIdKeyUp"
         @focus="$emit('input-focus')"
@@ -48,17 +47,17 @@
       <q-btn
         icon-right="mdi-lock-open"
         color="primary"
-        label="Öffnen"
+        :label="$t('open_upper')"
         class="full-width q-mt-xs"
         @click="openToken"
         :disabled="disableOpenTokenBtn"
       />
     </q-form>
 
-    <q-form class="row q-pt-md full-width q-pt-md q-pb-md" v-if="token.text">
+    <q-form class="row q-pt-md full-width q-pt-md q-pb-md" v-if="token && token.text">
       <div class="column col-10">
         <span class="text-subtitle2" style="display: inline-block"
-          >Geteilter Text:</span
+          >{{ $t("shared_text") }}:</span
         >
       </div>
 
@@ -84,7 +83,7 @@
     >
       <div class="column col-10">
         <span class="text-subtitle2" style="display: inline-block"
-          >Dateien:</span
+          >{{ $t("files") }}:</span
         >
       </div>
 
@@ -108,7 +107,7 @@
     <q-btn
       icon="mdi-close"
       color="primary"
-      label="Schließen"
+      :label="$t('close_upper')"
       class="full-width q-mt-xs"
       @click="
         token = null;
@@ -134,7 +133,7 @@ export default defineComponent({
   methods: {
     copySharedTextToClipboard() {
       copyToClipboard(this.token.text).then(() => {
-        this.confirmCopyToClipboardText = "Text kopiert!";
+        this.confirmCopyToClipboardText = `${this.$t("text_copied_msg")}!`;
         this.confirmCopyToClipboard = true;
         setTimeout(() => {
           this.confirmCopyToClipboard = false;
@@ -205,6 +204,7 @@ export default defineComponent({
 
     tokenIdKeyUp(e: KeyboardEvent) {
       if (e.keyCode === 13) {
+        this.$emit("input-blur");
         this.openToken();
       }
     },
@@ -220,8 +220,7 @@ export default defineComponent({
               const errMsg =
                 err instanceof Error ? err.message : err.toString();
               if (errMsg.match(/404/)) {
-                this.errorMsg =
-                  "Es wurde kein Inhalt für dieses Token gefunden.";
+                this.errorMsg = `${this.$t("token_not_found")}!`;
               } else {
                 this.errorMsg = errMsg;
               }
