@@ -1,4 +1,5 @@
 import { Collection, Db, FilterQuery, MongoClient, Timestamp } from "mongodb";
+import waitOn from "wait-on";
 import { DB_HOST, DB_PASSWD, DB_PORT, DB_USER } from "./config";
 
 export class DatabaseClient {
@@ -20,6 +21,20 @@ export class DatabaseClient {
 	}
 
 	public async connect() {
+		try {
+			await waitOn({
+				resources: [
+					`tcp:${DB_HOST}:${DB_PORT}`,
+				],
+				log: true,
+				timeout: 1000 * 60
+			});
+		} catch (err) {
+			throw new Error(`Cannot connect to database. Waited for 1 minute on connection at ${DB_HOST}:${DB_PORT}`);
+		}
+
+		console.log("Got a response from database. Waiting for 5 seconds before connect...");
+		await new Promise(resolve => setTimeout(resolve, 5000));
 		this.client = await this.client.connect();
 		this.database = this.client.db(DatabaseClient.DB_NAME);
 		this.collection = await this.database.collection(DatabaseClient.COLLECTON_NAME);
