@@ -56,24 +56,31 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          {{ $t('token_created_submit_text') }}:
-          <div class="q-pt-md">
-            <span class="text-body1">
-              {{ tokenId }}
-            </span>
+          <div class="row full-width">
+            {{ $t('token_created_submit_text') }}:
+          </div>
+
+          <div class="row full-width justify-evenly">
+            <vue-qrcode :value="tokenLink" v-if="tokenLink" />
+            <span class="q-pt-md text-body1 text-weight-medium">{{ tokenId }}</span>
             <q-btn
               flat
               icon="mdi-clipboard-multiple-outline"
-              class="float-right"
+              class="float-right q-pt-sm"
               @click="copyTokenToClipboard"
+              style="width: 40px; height: 40px"
             />
             <q-btn
               flat
               icon="mdi-share-variant"
-              class="float-right"
+              class="float-right q-pt-sm"
               @click="shareViaWebShare"
+              style="width: 40px; height: 40px; margin-left: -20px"
             />
           </div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-sm">
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
@@ -230,12 +237,13 @@
 import { api as backend, File, backendURL } from "../boot/backend";
 import { copyToClipboard } from "quasar";
 import * as moment from "moment";
+import VueQrcode from "vue-qrcode";
 
 import { defineComponent } from "@vue/composition-api";
 
 export default defineComponent({
   name: "ShareContent",
-  components: {},
+  components: { VueQrcode },
 
   methods: {
     abort () {
@@ -379,15 +387,14 @@ export default defineComponent({
     },
 
     shareViaWebShare () {
-      const url = `${window.location.protocol}//${window.location.host}/#/token/${this.tokenId}`;
       if (navigator.share) {
         navigator.share({
           title: this.$t("webshare_title").toString(),
           text: this.$t("webshare_text").toString(),
-          url
+          url: this.tokenLink
         });
       } else {
-        copyToClipboard(url).then(() => {
+        copyToClipboard(this.tokenLink).then(() => {
           this.popupBottomNotificationText = `${this.$t("link_copied")}!`;
           this.popupBottomNotificationIcon = "mdi-close";
           this.showPopupBottomNotification = true;
@@ -478,6 +485,7 @@ export default defineComponent({
       uploadStartTime: 0,
       uploadFinishedDialog: false,
       tokenId: "",
+      tokenLink: "",
       showPopupBottomNotification: false,
       popupBottomNotificationText: "",
       popupBottomNotificationIcon: "",
@@ -509,6 +517,14 @@ export default defineComponent({
     showFileInput () {
       this.disableUploadBtn =
         this.sharedText.length === 0 && !this.showFileInput;
+    },
+
+    tokenId () {
+      if (this.tokenId) {
+        this.tokenLink = `${window.location.protocol}//${window.location.host}/#/token/${this.tokenId}`;
+      } else {
+        this.tokenLink = "";
+      }
     }
   },
 
