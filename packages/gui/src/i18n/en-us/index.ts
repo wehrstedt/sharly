@@ -1,0 +1,42 @@
+export default {
+	slogan_1: 'Share text, passwords, files and more.',
+	slogan_2: 'Fast, simple, secure.',
+	share_upper: "Share",
+	open_upper: "Open",
+
+	// Open content
+	header_open_token: "Open content",
+	token_label: "Token",
+	token_not_found: "No content found for the entered token",
+	please_enter_a_token: "Please enter a token.",
+	shared_text: "Shared text",
+	files: "Files",
+	close_upper: "Close",
+	text_copied_msg: "Text copied",
+
+	// Share content
+	period_of_validity: "Period of validity",
+	period_of_validity_expl: "You can configure how long the shared content can be Select how long the content can be accessed. After the validity period expires, your shared content will be deleted from the server.",
+	abort_upper: "Abort",
+	confirmation_upper: "Confirmation",
+	token_created_submit_text: "Successfully shared. You can access the content with the following token",
+	header_share_content: "Share content",
+	subheader_share_content: "What do you like to share?",
+	enforce_authorization_msg: "You have to be authorized to share content",
+	enter_text: "Enter text",
+	label_attachments: "Attachments",
+	label_password: "Password",
+	label_submit: "Login",
+	submit_abort: "Dou you realy want to abort? Your inputs will be lost!",
+	yes_upper: "Yes",
+	no_upper: "No",
+	invalid_password: "Invalid password",
+	token_copied_msg: "Token copied",
+	webshare_title: "Sharly | I'd like to share something with you",
+	webshare_text: "Hello. I like to share something with you via Sharly. Open the following link to access the content:",
+	link_copied: "Link copied",
+	error_upper: "Error",
+	minutes_upper: "Minutes",
+	hours_upper: "Hours",
+	days_upper: "Days"
+};
