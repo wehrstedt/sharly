@@ -12,6 +12,7 @@ services:
     environment:
       - SHARLY_BACKEND_HOST=sharly-backend
       - SHARLY_BACKEND_PORT=8082
+      - SHARLY_DEFAULT_LOCALE=de
     links:
       - sharly-backend
     restart: always
