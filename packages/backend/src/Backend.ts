@@ -7,7 +7,7 @@ import { basename, extname, join } from "path";
 import { existsSync } from "fs";
 import { mkdir, mv, rm } from "shelljs";
 import { v4 } from "uuid";
-import { SHARLY_PASSWD, FILE_TMP_DIR, FILE_UPLD_DIR } from "./config";
+import { SHARLY_PASSWD, FILE_TMP_DIR, FILE_UPLD_DIR, FILE_UPLOAD_LIMIT } from "./config";
 import { Express, Request, Response } from "express";
 import { fips } from "crypto";
 
@@ -30,8 +30,8 @@ export class Backend {
 
 		this.databaseClient = new DatabaseClient();
 		this.app = express();
-		this.app.use(bodyParser.json());
-		this.app.use(bodyParser.urlencoded({ extended: true }));
+		this.app.use(bodyParser.json({ limit: `${FILE_UPLOAD_LIMIT}mb` }));
+		this.app.use(bodyParser.urlencoded({ extended: true, limit: `${FILE_UPLOAD_LIMIT}mb` }));
 		this.app.use(fileUpload());
 
 		// Routes

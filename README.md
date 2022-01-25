@@ -18,6 +18,7 @@ You need to install docker (and docker-compose) to startup the services.
    * `DB_USER` username of the mongo db which the sharly should use to connect to mongo db
    * `DB_PASSWD` Password for the mongo db user
    * `SHARLY_PASSWD` Password which is neccessary for uploading content. This prevents that random people can upload content to your (maybe publicly available) sharly instance.
+   * `FILE_UPLOAD_LIMIT` Max size for file uploads in MB.
 
 3. Run `docker-compose up -d --build` to start the services.
 
