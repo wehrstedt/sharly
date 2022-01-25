@@ -31,7 +31,7 @@
       <div class="text-h6">{{ $t("header_open_token") }}</div>
     </div>
 
-    <q-form class="row q-pt-xs full-width" ref="tokenForm" v-if="!token">
+    <q-form class="row q-pt-xs full-width" ref="tokenForm" v-if="!token" @submit="e.preventDefault();">
       <q-input
         flat
         :label="$t('token_label')"
@@ -54,7 +54,7 @@
       />
     </q-form>
 
-    <q-form class="row q-pt-md full-width q-pt-md q-pb-md" v-if="token && token.text">
+    <q-form class="row q-pt-md full-width q-pt-md q-pb-md" v-if="token && token.text" @submit="e.preventDefault();">
       <div class="column col-10">
         <span class="text-subtitle2" style="display: inline-block"
           >{{ $t("shared_text") }}:</span
@@ -80,6 +80,7 @@
     <q-form
       class="row q-pt-xs full-width"
       v-if="token && token.files.length > 0"
+      @submit="e.preventDefault();"
     >
       <div class="column col-10">
         <span class="text-subtitle2" style="display: inline-block"
